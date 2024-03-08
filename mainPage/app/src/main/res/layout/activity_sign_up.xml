@@ -51,4 +51,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.47" />
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/loginPageToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#4C7F7A"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="   "
+        app:titleTextColor="#FFFFFF"
+        tools:layout_editor_absoluteX="186dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
