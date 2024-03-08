@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#DDC4E3DF"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/goToSignUpButton"
+        android:layout_width="253dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="248dp"
+        android:backgroundTint="#4C7F7A"
+        android:text="Create an account"
+        android:textColor="#DDEDEC"
+        android:textSize="20sp"
+        app:cornerRadius="10sp"
+        app:iconPadding="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/goToLoginButton"
+        android:layout_width="253dp"
+        android:layout_height="70dp"
+        android:backgroundTint="#6FA09B"
+        android:text="Login"
+        android:textColor="#DDEDEC"
+        android:textSize="20sp"
+        app:cornerRadius="10sp"
+        app:iconPadding="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/goToSignUpButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.747" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="402dp"
+        android:layout_height="184dp"
+        android:layout_marginTop="72dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo" />
+
+    <Button
+        android:id="@+id/goToHomePageButton"
+        android:layout_width="253dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="36dp"
+        android:backgroundTint="#3D6F86"
+        android:text="Go To Home Page"
+        android:textColor="#DDEDEC"
+        android:textSize="20sp"
+        app:cornerRadius="10sp"
+        app:iconPadding="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/goToSignUpButton"
+        app:layout_constraintVertical_bias="0.662" />
+</androidx.constraintlayout.widget.ConstraintLayout>
