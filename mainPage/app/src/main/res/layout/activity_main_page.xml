@@ -32,13 +32,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2"
-        app:layout_constraintVertical_bias="0.318" />
+        app:layout_constraintVertical_bias="0.576" />
 
     <Button
         android:id="@+id/button4"
         android:layout_width="253dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="284dp"
+        android:layout_marginBottom="280dp"
         android:backgroundTint="#4C7F7A"
         android:text="Sound Quality Test"
         android:textColor="#DDEDEC"
@@ -49,49 +49,62 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="128dp"
-        android:layout_height="110dp"
-        android:layout_marginBottom="92dp"
-        android:backgroundTint="#DDC4E3DF"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageView3"
-        app:layout_constraintHorizontal_bias="0.508"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/automation_computer_icons_workflow_vector_graphics_orchestration_skills_icon_a982eb706d5bdb9062ab7ffe3b130c63" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="115dp"
-        android:layout_height="110dp"
-        android:layout_marginEnd="56dp"
-        android:layout_marginBottom="92dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/bar_chart_computer_icons_pie_chart_vector_graphics_growth_icon_06edea553eb0ddcf753e2a5db6ab968c__1_" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="96dp"
+        android:layout_marginBottom="16dp"
         android:text="Settings"
+        android:textColor="#2F4C49"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.247"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton"
-        app:layout_constraintVertical_bias="0.397" />
+        app:layout_constraintTop_toBottomOf="@+id/imageButton4"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="44dp"
         android:text="My Stats"
+        android:textColor="#2F4C49"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.588"
+        app:layout_constraintHorizontal_bias="0.589"
         app:layout_constraintStart_toEndOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3"
-        app:layout_constraintVertical_bias="0.397" />
+        app:layout_constraintTop_toBottomOf="@+id/imageButton3"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="171dp"
+        android:layout_height="152dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="#DDC4E3DF"
+        android:backgroundTintMode="src_over"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.873"
+        app:srcCompat="@drawable/charts" />
+
+    <ImageButton
+        android:id="@+id/imageButton4"
+        android:layout_width="179dp"
+        android:layout_height="151dp"
+        android:layout_marginStart="28dp"
+        android:backgroundTint="#DDC4E3DF"
+        android:backgroundTintMode="src_over"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.874"
+        app:srcCompat="@drawable/settings" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
