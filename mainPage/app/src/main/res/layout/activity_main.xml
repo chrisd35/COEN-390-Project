@@ -58,6 +58,7 @@
         android:text="Go To Home Page"
         android:textColor="#DDEDEC"
         android:textSize="20sp"
+        android:visibility="gone"
         app:cornerRadius="10sp"
         app:iconPadding="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
