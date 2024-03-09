@@ -1,14 +1,18 @@
 package com.example.mainpage;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
+
 
 import com.example.mainpage.API.RetrofitClient;
 
@@ -22,16 +26,22 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
 public class signUpActivity extends AppCompatActivity {
     protected Button saveButton;
     protected EditText usernameEdit;
     protected EditText passwordEdit;
+
+    protected Toolbar toolbar;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        saveButton = findViewById(R.id.saveButton);
+
+                saveButton = findViewById(R.id.saveButton);
         usernameEdit = findViewById(R.id.usernameLoginEditText);
         passwordEdit = findViewById(R.id.passwordLoginEditText);
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -41,6 +51,19 @@ public class signUpActivity extends AppCompatActivity {
 
             }
         });
+
+        toolbar = findViewById(R.id.loginPageToolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    //Back button
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+
     }
 
     private void createUser(){
