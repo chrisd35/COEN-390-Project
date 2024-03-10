@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">mainPage</string>
+    <string-array name="DB_levels">
+        <item>60 dB</item>
+        <item>65 dB</item>
+        <item>70 dB</item>
+        <item>75 dB</item>
+        <item>80 dB</item>
+    </string-array>
 </resources>

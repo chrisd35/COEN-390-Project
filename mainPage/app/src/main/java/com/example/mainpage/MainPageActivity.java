@@ -32,12 +32,14 @@ import retrofit2.Response;
 
 public class MainPageActivity<T> extends AppCompatActivity {
     protected ImageView Stats;
+    protected ImageView Settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
         Stats = findViewById(R.id.imageView3);
+        Settings = findViewById(R.id.imageButton);
 
         Stats.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +47,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 gotoStatsPage();
             }
         });
+
+        Settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoSettingsPage();
+            }
+        });
+
 
 
         sendDatatoServer(( new ArrayList<Integer>(Arrays.asList(5))), new SendDataCallback() {
@@ -216,4 +226,9 @@ call.enqueue(new Callback<ResponseBody>() {
             Intent intent = new Intent(this, StatActivity.class);
             startActivity(intent);
         }
+
+    public void gotoSettingsPage(){
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
 }
