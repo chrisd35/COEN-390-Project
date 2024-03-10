@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.mainpage.API.DataCallback;
@@ -29,11 +31,22 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainPageActivity<T> extends AppCompatActivity {
+    protected ImageView Stats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+        Stats = findViewById(R.id.imageView3);
+
+        Stats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoStatsPage();
+            }
+        });
+
+
         sendDatatoServer(( new ArrayList<Integer>(Arrays.asList(5))), new SendDataCallback() {
                     @Override
                     public void onDataSent() {
@@ -196,6 +209,11 @@ call.enqueue(new Callback<ResponseBody>() {
     }
         public void gotoMainActivity(){
             Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+
+        public void gotoStatsPage(){
+            Intent intent = new Intent(this, StatActivity.class);
             startActivity(intent);
         }
 }
