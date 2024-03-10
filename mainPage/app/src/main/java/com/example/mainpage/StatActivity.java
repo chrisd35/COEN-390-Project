@@ -4,7 +4,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.BarGraphSeries;
@@ -14,15 +14,18 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class StatActivity extends AppCompatActivity {
 
-    protected Toolbar stattoolbar;
+    protected Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stat);
 
-
-
+        toolbar = findViewById(R.id.statsPageToolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         GraphView SoundLevel = (GraphView) findViewById(R.id.SoundLevel);
         BarGraphSeries<DataPoint> SoundLevelData = new BarGraphSeries<>(new DataPoint[] {
@@ -47,6 +50,11 @@ public class StatActivity extends AppCompatActivity {
 
     }
 
-    private void setSupportActionBar(Toolbar stattoolbar) {
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
+
 }
