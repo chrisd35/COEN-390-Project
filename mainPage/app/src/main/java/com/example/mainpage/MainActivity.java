@@ -9,7 +9,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button signUpButton, loginButton, homePageButton;
+    Button signUpButton, loginButton, homePageButton, tempButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         signUpButton = findViewById(R.id.goToSignUpButton);
         loginButton = findViewById(R.id.goToLoginButton);
         homePageButton = findViewById(R.id.goToHomePageButton);
+        tempButton = findViewById(R.id.button);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -42,6 +43,14 @@ public class MainActivity extends AppCompatActivity {
                 goToHomePage();
             }
         });
+
+        tempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment dialog = new DialogFragment();
+                dialog.show(getSupportFragmentManager(),"My  Fragment");
+            }
+        });
     }
 
     private void goToHomePage() {
@@ -58,4 +67,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, signUpActivity.class);
         startActivity(intent);
     }
+
 }
