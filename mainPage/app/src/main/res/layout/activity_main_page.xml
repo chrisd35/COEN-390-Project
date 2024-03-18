@@ -19,7 +19,7 @@
         app:srcCompat="@drawable/logo" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/AirQualitybutton"
         android:layout_width="253dp"
         android:layout_height="70dp"
         android:backgroundTint="#6FA09B"
@@ -35,7 +35,7 @@
         app:layout_constraintVertical_bias="0.318" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/SoundButton"
         android:layout_width="253dp"
         android:layout_height="70dp"
         android:layout_marginBottom="284dp"
