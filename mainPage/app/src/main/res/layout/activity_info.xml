@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#DDC4E3DF"
+    tools:context=".infoActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/infoPageToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#4C7F7A"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="?attr/actionBarTheme" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="The following table is provided by the Government of Canada which shows us the allowed level and maximum permitted hours one can be exposed to high levels of noise at a workplace. Table 1 shows us the Noise Exposure limits of standard jurisdictions, whereas Table 2 shows us the levels at Quebec." />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="450dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/tablephoto" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Prolonged noise levels above 75-85 will cause permanent hearing damage. You should use these charts as an example and set the levels you want to be alerted to. It is recommended to wear ear protection equipment as much as possible to protect yourself." />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="The air around us may seem invisible, however, it is crucial to our health and safety. Increased levels of CO2 can lead to increased tiredness, headaches, eye irritations, decreased brain activity, and more. The long-term exposure according to the Government of Canada is 1000ppm. They recommend levels reach no greater than 700ppm." />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

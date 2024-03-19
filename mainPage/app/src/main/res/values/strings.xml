@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">mainPage</string>
+    <string name="app_name">EnviroSpect</string>
     <string-array name="DB_levels">
         <item>60 dB</item>
         <item>65 dB</item>
