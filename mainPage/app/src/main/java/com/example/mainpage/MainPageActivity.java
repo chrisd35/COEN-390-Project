@@ -93,6 +93,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Stats = findViewById(R.id.imageView3);
         Settings = findViewById(R.id.imageButton);
         Button SoundDataCollect = findViewById(R.id.SoundButton);
+        Button Logout = findViewById(R.id.LogoutButton);
         SoundDataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,6 +180,13 @@ public class MainPageActivity<T> extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(Tag, e.getMessage());
         }
+
+        Logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogoutOfAcc();
+            }
+        });
 
 //        sendDatatoServer(( new ArrayList<Integer>(Arrays.asList(5))), new SendDataCallback() {
 //                    @Override
@@ -672,6 +680,11 @@ call.enqueue(new Callback<ResponseBody>() {
 
     public void gotoSettingsPage(){
         Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    public void LogoutOfAcc(){
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
     private void showToast(String message) {
