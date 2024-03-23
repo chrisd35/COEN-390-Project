@@ -5,13 +5,16 @@ const soundDataSchema = new Schema({
     date: {
         type:String,
     },
-    values: [Number] 
+    CO2: [Number],
+    VOC :[Number],
+    SoundLevel:[Number],
 });
+
 
 const userAccountSchema = new Schema({
     id: String,
     username: String,
     password: String,
-    soundData: [soundDataSchema]
+    Data: [soundDataSchema]
 })
 module.exports = mongoose.model("Account", userAccountSchema);

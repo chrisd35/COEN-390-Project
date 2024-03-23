@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 //import androidx.work.PeriodicWorkRequest;
 //import androidx.work.WorkManager;
 
@@ -165,14 +167,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        }
 //        private void schedulePeriodicWorkWithInitialDelay() {
 //            // Assume data preparation takes up to 5 minutes
-//            long initialDelay = 5; // minutes
+            long initialDelay = 15; // minutes
 //
-//            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-//                    DataSendWorker.class, 15, TimeUnit.MINUTES)
-//                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
-//                    .build();
-//
-//            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                    DataSendWorker.class, 15, TimeUnit.MINUTES)
+                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+                    .build();
+
+            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
 //        }
 //        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
 //                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed

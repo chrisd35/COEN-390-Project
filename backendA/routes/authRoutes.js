@@ -7,6 +7,9 @@ router.post("/login",authController.login)
 router.delete("/logOut",authController.logOut)
 router.get("/isAuthorized",authController.authenticatedCheck)
 router.post("/AddSoundData",authController.AddSoundData)
-router.post("/retrieveSoundData",authController.retrieveSoundData)
-
+router.post("/retrieveSoundData",authController.getSoundData)
+router.post("/AddVOCdata",authController.AddVOCData)
+router.post("/AddCO2Data",authController.AddCO2Data)
+router.post("/retrieveCO2Data",authController.getCO2Data)
+router.post("/retrieveVOCData",authController.getVOCData)
 module.exports=router;
