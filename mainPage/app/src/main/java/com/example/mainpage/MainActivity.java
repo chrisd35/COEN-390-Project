@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         signUpButton = findViewById(R.id.goToSignUpButton);
         loginButton = findViewById(R.id.goToLoginButton);
         homePageButton = findViewById(R.id.goToHomePageButton);
-        tempButton = findViewById(R.id.button);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,13 +45,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        tempButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment dialog = new DialogFragment();
-                dialog.show(getSupportFragmentManager(),"My  Fragment");
-            }
-        });
+
     }
 
     private void goToHomePage() {

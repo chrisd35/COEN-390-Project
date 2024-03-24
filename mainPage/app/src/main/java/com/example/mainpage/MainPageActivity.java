@@ -6,11 +6,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+//import androidx.work.PeriodicWorkRequest;
+//import androidx.work.WorkManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -51,7 +57,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -59,6 +68,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainPageActivity<T> extends AppCompatActivity {
+    public static String averageCO2;
+    public static String averageVOC;
+
+    public static String averageSound;
+
+    public static boolean issoundclicked = false;
+    public static boolean isairclicked = false;
     protected ImageView Stats;
     protected ImageView Settings;
     private BluetoothAdapter bluetoothAdapter;
@@ -79,9 +95,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final String CharacteristicTwoUUID = "beb5483e-36e1-4688-b7f5-ea07361b27a9";
     private static final String CharacteristicThreeUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
     private static final long READ_INTERVAL_MS = 1000;
-    private ArrayList<Integer> Co2data = new ArrayList<Integer>();
-    private ArrayList<Integer> Sounddata = new ArrayList<Integer>();
-    private ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+    static ArrayList<Integer> Co2data = new ArrayList<Integer>();
+    static ArrayList<Integer> Sounddata = new ArrayList<Integer>();
+   static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
@@ -92,11 +109,20 @@ public class MainPageActivity<T> extends AppCompatActivity {
         setContentView(R.layout.activity_main_page);
         Stats = findViewById(R.id.imageView3);
         Settings = findViewById(R.id.imageButton);
+
         Button SoundDataCollect = findViewById(R.id.SoundButton);
         Button Logout = findViewById(R.id.LogoutButton);
+
+        Logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoLogout();
+            }
+        });
         SoundDataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                issoundclicked = true;
                 //take the "instanteous" reading of the sound leve, by taking the five last element and averaging
                 int size = Sounddata.size();
                 // Start from the fifth-to-last element if there are at least five elements
@@ -113,12 +139,15 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     average = (double) sum / count;
                 }
                 String averageStr = String.format("%.2f", average);
-                Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
+                setAverageSound(averageStr);
+//                Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
+
+                DialogFragment dialog = new DialogFragment();
+                dialog.show(getSupportFragmentManager(),"My Fragment");
             }
         });
-<<<<<<< Updated upstream
-=======
-//        schedulePeriodicWorkWithInitialDelay();
+
+        schedulePeriodicWorkWithInitialDelay();
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
 //            @Override
 //            public void onDataLoaded(List<Double> data) {
@@ -165,12 +194,32 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
 //                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed
 //                .build();
->>>>>>> Stashed changes
+
+
+//        Handler handlerfirstTime=new Handler();
+//        Runnable task = new Runnable() {
+//            @Override
+//            public void run() {
+//                // Code to execute after the delay
+//                schedulePeriodicWork();
+//            }
+//        };
+//        handlerfirstTime.postDelayed(task, 900000);
+//        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        Intent intent = new Intent(this, AlarmReceiver.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        long interval = 60000; // 10 minutes in milliseconds
+//        long startTime = System.currentTimeMillis() + interval;
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startTime, interval, pendingIntent);
+
 
         Button CO2DataCollect = findViewById(R.id.AirQualitybutton);
         CO2DataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isairclicked = true;
                 //take the "instanteous" reading of the CO2 and VOC level, by taking the five last element and averaging
 
                 int size = Co2data.size();
@@ -205,8 +254,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     averageV = (double) sumV / countV;
                 }
                 String averageStr = String.format("%.2f", average);
+                setAverageC02(averageStr);
+
                 String averageVStr = String.format("%.2f", averageV);
-                Toast.makeText(MainPageActivity.this, "CO2: " + averageStr + " VOC: " + averageVStr, Toast.LENGTH_LONG).show();
+                setAverageVOC(averageVStr);
+//                Toast.makeText(MainPageActivity.this, "CO2: " + averageStr + " VOC: " + averageVStr, Toast.LENGTH_LONG).show();
+                DialogFragment dialog = new DialogFragment();
+                dialog.show(getSupportFragmentManager(),"My Fragment");
+
             }
 
         });
@@ -230,13 +285,6 @@ public class MainPageActivity<T> extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(Tag, e.getMessage());
         }
-
-        Logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogoutOfAcc();
-            }
-        });
 
 //        sendDatatoServer(( new ArrayList<Integer>(Arrays.asList(5))), new SendDataCallback() {
 //                    @Override
@@ -303,6 +351,13 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Log.d(Tag, "After Permission");
 
     }
+//    private void schedulePeriodicWork() {
+//        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+//                DataSendWorker.class, 15, TimeUnit.MINUTES)
+//                .build();
+//
+//        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+//    }
 
 
     private void startScanning() {
@@ -320,7 +375,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 String targetDeviceName = "ESP32";
 
                 Log.d(Tag, "Scanning");
-                showToast("Scanning for Device");
+//                showToast("Scanning for Device");
 
 
                 if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -430,7 +485,8 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_FINE_LOCATION);
         } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -579,7 +635,17 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         }
     }
+    private void schedulePeriodicWorkWithInitialDelay() {
+        long initialDelay = 15; // Delay in minutes before the first execution
+        long repeatInterval = 15; // Repeat interval in minutes
 
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                DataSendWorker.class, repeatInterval, TimeUnit.MINUTES)
+                .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+    }
     public void receiveDatafromServer(String date, DataCallback callback){
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
@@ -625,30 +691,30 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
 
     public <T> void sendDatatoServer(List<T>data){
-Call<ResponseBody>call =RetrofitClient
-        .getInstance()
-        .getApi()
-        .AddSoundData(new SoundDataSendRequest(data));
-call.enqueue(new Callback<ResponseBody>() {
-    @Override
-    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-       try {
-           String body=response.body().string();
-           JSONObject jsonObj = new JSONObject(body);
-           String message=jsonObj.getString("message");
-           Toast.makeText(MainPageActivity.this,message,Toast.LENGTH_LONG).show();
-       } catch (JSONException e) {
-           throw new RuntimeException(e);
-       } catch (IOException e) {
-           throw new RuntimeException(e);
-       }
-    }
+        Call<ResponseBody>call =RetrofitClient
+                .getInstance()
+                .getApi()
+                .AddSoundData(new SoundDataSendRequest(data));
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String body=response.body().string();
+                    JSONObject jsonObj = new JSONObject(body);
+                    String message=jsonObj.getString("message");
+                    Toast.makeText(MainPageActivity.this,message,Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-    @Override
-    public void onFailure(Call<ResponseBody> call, Throwable t) {
-        Toast.makeText(MainPageActivity.this,t.getMessage(),Toast.LENGTH_LONG).show();
-    }
-});
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainPageActivity.this,t.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        });
     }
     public <T> void sendDatatoServer(List<T>data,SendDataCallback callback ){
         Call<ResponseBody>call =RetrofitClient
@@ -718,22 +784,22 @@ call.enqueue(new Callback<ResponseBody>() {
 
 
     }
-        public void gotoMainActivity(){
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+    public void gotoMainActivity(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 
-        public void gotoStatsPage(){
-            Intent intent = new Intent(this, StatActivity.class);
-            startActivity(intent);
-        }
+    public void gotoStatsPage(){
+        Intent intent = new Intent(this, StatActivity.class);
+        startActivity(intent);
+    }
 
     public void gotoSettingsPage(){
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    public void LogoutOfAcc(){
+    public void gotoLogout(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -743,5 +809,25 @@ call.enqueue(new Callback<ResponseBody>() {
         }
         currentToast = Toast.makeText(MainPageActivity.this, message, Toast.LENGTH_SHORT);
         currentToast.show();
+    }
+
+    public void setAverageC02(String averageCO2){
+        this.averageCO2 = averageCO2;
+    }
+
+    public void setAverageVOC(String averageVOC){
+        this.averageVOC = averageVOC;
+    }
+    public void setAverageSound(String averageSound){
+        this.averageSound = averageSound;
+    }
+    public String getAverageCO2(){
+        return averageCO2;
+    }
+    public String getAverageVOC(){
+        return averageVOC;
+    }
+    public String getAverageSound(){
+        return averageSound;
     }
 }

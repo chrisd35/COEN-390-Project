@@ -34,9 +34,6 @@ public interface APIservice {
     Call<ResponseBody> AddSoundData(@Body SoundDataSendRequest soundDataSendRequest);
     @POST("retrieveSoundData")
     Call<ResponseBody> retrieveSoundData(@Body SoundRetrieveData soundRetrieveRequest);
-<<<<<<< Updated upstream
-
-=======
     @POST("AddVOCData")
     Call<ResponseBody> AddVOCData(@Body SoundDataSendRequest soundDataSendRequest);
     @POST("retrieveVOCData")
@@ -45,7 +42,7 @@ public interface APIservice {
     Call<ResponseBody> AddCO2Data(@Body SoundDataSendRequest soundDataSendRequest);
     @POST("retrieveSoundData")
     Call<ResponseBody> retrieveCO2Data(@Body SoundRetrieveData soundRetrieveRequest);
->>>>>>> Stashed changes
+
 
 
 }
