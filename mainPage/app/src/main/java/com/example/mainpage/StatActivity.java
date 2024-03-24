@@ -9,11 +9,15 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 //import com.jjoe64.graphview.series.BarGraphSeries;
+import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 
@@ -105,58 +109,157 @@ public class StatActivity extends AppCompatActivity {
 
     }
 
-//    private ArrayList<Double> generateDummyData(int size) {
-//        ArrayList<Double> dataList = new ArrayList<>();
-//        for (int i = 0; i < size; i++) {
-//            double value = Math.random() * 100; // Generate random value between 0 and 100
-//            dataList.add(value);
-//        }
-//        return dataList;
-//    }
+private void refreshData() {
+    // Call method to retrieve sound data
+    DataRetrieveWorker.retrieveSoundDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+        @Override
+        public void onDataLoaded(ArrayList<Double> soundDataList) {
+            // Update sound level graph with the retrieved sound data
+            updateSoundLevelGraph(soundDataList);
 
-    private void updateGraphs(ArrayList<Double> dataList) {
+            // Call method to retrieve VOC data
+            DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                @Override
+                public void onDataLoaded(ArrayList<Double> vocDataList) {
+                    // Update VOC graph with the retrieved VOC data
+                    updateVOCGraph(vocDataList);
+
+                    // Call method to retrieve CO2 data
+                    DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                        @Override
+                        public void onDataLoaded(ArrayList<Double> co2DataList) {
+                            // Update CO2 graph with the retrieved CO2 data
+                            updateCO2Graph(co2DataList);
+                        }
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            // Handle CO2 data retrieval failure
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    // Handle VOC data retrieval failure
+                }
+            });
+        }
+
+        @Override
+        public void onFailure(String errorMessage) {
+            // Handle sound data retrieval failure
+        }
+    });
+}
+    private void updateSoundLevelGraph(ArrayList<Double> soundDataList) {
         try {
-            DataPoint[] soundLevelDataPoints = new DataPoint[dataList.size()];
-            DataPoint[] VOCDataPoints = new DataPoint[dataList.size()];
-            DataPoint[] CO2DataPoints = new DataPoint[dataList.size()];
+            DataPoint[] soundLevelDataPoints = new DataPoint[soundDataList.size()];
 
-            for (int i = 0; i < dataList.size(); i++) {
-                soundLevelDataPoints[i] = new DataPoint(i, dataList.get(i));
-                VOCDataPoints[i] = new DataPoint(i, dataList.get(i));
-                CO2DataPoints[i] = new DataPoint(i, dataList.get(i));
+            for (int i = 0; i < soundDataList.size(); i++) {
+                soundLevelDataPoints[i] = new DataPoint(i, soundDataList.get(i));
 
             }
 
+            // Resets the data and sets with new data to update the graph
             soundLevelDataSeries.resetData(soundLevelDataPoints);
-            VOCDataSeries.resetData(VOCDataPoints);
-            CO2DataSeries.resetData(CO2DataPoints);
 
+            // Establishes minimum and max X values
             soundLevelGraph.getViewport().setMinX(0);
-            soundLevelGraph.getViewport().setMaxX(dataList.size() - 1);
-            VOCGraph.getViewport().setMinX(0);
-            VOCGraph.getViewport().setMaxX(dataList.size() - 1);
-            CO2Graph.getViewport().setMinX(0);
-            CO2Graph.getViewport().setMaxX(dataList.size() - 1);
+            soundLevelGraph.getViewport().setMaxX(soundDataList.size() - 1);
+
+            // Establishes minimum and max Y values
+            soundLevelGraph.getViewport().setMinY(0);
+            soundLevelGraph.getViewport().setMaxY(2000);
+
+            // Allows to zoom and scroll within the graphs
+            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
+            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
+            soundLevelGraph.getViewport().setScalable(true);
+            soundLevelGraph.getViewport().setScalableY(true);
+
+            // Allows to add padding to frame the Y axis values
+            GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
+
+            glrSound.setPadding(128); // should allow for 5 digits to fit on screen
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Method to retrieve data from the server and update graphs
-    private void refreshData() {
-        DataRetrieveWorker.retrieveSoundDataFromServer("your_date", new DataRetrieveWorker.DataCallback() {
-            @Override
-            public void onDataLoaded(ArrayList<Double> dataList) {
-                // Update graphs with the retrieved data
-                updateGraphs(dataList);
+    private void updateVOCGraph(ArrayList<Double> vocDataList) {
+        try {
+            DataPoint[] vocDataPoints = new DataPoint[vocDataList.size()];
+
+            for (int i = 0; i < vocDataList.size(); i++) {
+                vocDataPoints[i] = new DataPoint(i, vocDataList.get(i));
             }
 
-            @Override
-            public void onFailure(String errorMessage) {
-                // Handle failure, e.g., show error message
-            }
-        });
+            VOCDataSeries.resetData(vocDataPoints);
+
+            // Set X bounds for VOC graph
+            VOCGraph.getViewport().setMinX(0);
+            VOCGraph.getViewport().setMaxX(vocDataList.size() - 1);
+
+            // Set Y bounds for VOC graph
+            VOCGraph.getViewport().setMinY(0);
+            VOCGraph.getViewport().setMaxY(2000);
+
+            // Allow zoom and scroll
+            VOCGraph.getViewport().setScrollable(true);
+            VOCGraph.getViewport().setScrollableY(true);
+            VOCGraph.getViewport().setScalable(true);
+            VOCGraph.getViewport().setScalableY(true);
+
+            // Allows to add padding to frame the Y axis values
+            GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
+
+            glrVOC.setPadding(128); // should allow for 5 digits to fit on screen
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    private void updateCO2Graph(ArrayList<Double> co2DataList) {
+        try {
+            DataPoint[] co2DataPoints = new DataPoint[co2DataList.size()];
+
+            for (int i = 0; i < co2DataList.size(); i++) {
+                co2DataPoints[i] = new DataPoint(i, co2DataList.get(i));
+            }
+
+            CO2DataSeries.resetData(co2DataPoints);
+
+            // Set X bounds for CO2 graph
+            CO2Graph.getViewport().setMinX(0);
+            CO2Graph.getViewport().setMaxX(co2DataList.size() - 1);
+
+            // Set Y bounds for CO2 graph
+            CO2Graph.getViewport().setMinY(0);
+            CO2Graph.getViewport().setMaxY(2000);
+
+            // Allow zoom and scroll
+            CO2Graph.getViewport().setScrollable(true);
+            CO2Graph.getViewport().setScrollableY(true);
+            CO2Graph.getViewport().setScalable(true);
+            CO2Graph.getViewport().setScalableY(true);
+
+            // Allows to add padding to frame the Y axis values
+            GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
+
+            glrCO2.setPadding(128); // should allow for 5 digits to fit on screen
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -164,47 +267,5 @@ public class StatActivity extends AppCompatActivity {
         return true;
     }
 
-
-    // Function to update data points in existing series
-//    private void updateGraphs(ArrayList<Double> dataList) {
-//        // Clear existing data points
-//        soundLevelDataSeries.resetData(new DataPoint[0]);
-//        airQualityDataSeries.resetData(new DataPoint[0]);
-//
-//        // Create new DataPoints and add them to the series
-//        DataPoint[] soundLevelDataPoints = new DataPoint[dataList.size()];
-//        for (int i = 0; i < dataList.size(); i++) {
-//            soundLevelDataPoints[i] = new DataPoint(i, dataList.get(i));
-//        }
-//
-//        DataPoint[] airQualityDataPoints = new DataPoint[dataList.size()];
-//        for (int i = 0; i < dataList.size(); i++) {
-//            airQualityDataPoints[i] = new DataPoint(i, dataList.get(i));
-//        }
-//
-//        // Set new data points to the series
-//        soundLevelDataSeries.resetData(soundLevelDataPoints);
-//        airQualityDataSeries.resetData(airQualityDataPoints);
-//
-//
-//        // Refresh the graph by invalidating it
-//        soundLevelGraph.invalidate();
-//        airQualityGraph.invalidate();
-//    }
-
-    // Replace with your actual Retrofit call and error handling
-//    private void receiveDatafromServer(String date) {
-//        // Call your Retrofit method here to fetch data from server as shown in your previous code
-//        // RetrofitClient.getInstance().getApi().retrieveSoundData(new SoundRetrieveData(date));
-//
-//        // Simulate data retrieval for demonstration
-//        ArrayList<Double> dataList = new ArrayList<>();
-//        for (int i = 0; i < 10; i++) {
-//            dataList.add(Math.random() * 100); // Replace with actual data retrieval logic
-//        }
-//
-//        // Update graphs on successful data retrieval
-//        updateGraphs(dataList);
-//    }
 
 }
