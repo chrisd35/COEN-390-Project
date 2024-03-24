@@ -116,6 +116,56 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
             }
         });
+<<<<<<< Updated upstream
+=======
+//        schedulePeriodicWorkWithInitialDelay();
+//        receiveDatafromServer("2024-03-21", new DataCallback() {
+//            @Override
+//            public void onDataLoaded(List<Double> data) {
+//                Log.d(Tag,String.valueOf(data.get(14300)));
+////               showToast(String.valueOf(data.get(14300)));
+//            }
+//        });
+//        try {
+//            Timer timer = new Timer();
+//            TimerTask task = new TimerTask() {
+//                @Override
+//                public void run() {
+//                    ArrayList<Double> DummyData=new ArrayList<>();
+//                    for(int i=0;i<180;i++){
+////                double value=(double) (100+i);
+//                        DummyData.add(144.23);
+//
+//                    }
+//                    sendDatatoServer(DummyData);
+//                }
+//            };
+//            long delay = 5000; // Delay before first execution (5 seconds)
+//            long interval = 60000; // Interval for repeating (1 minute)
+//
+//            timer.scheduleAtFixedRate(task, delay, interval);
+//
+//        }
+//
+//        catch (Exception e)
+//        {
+//            Log.e(Tag,e.getMessage());
+//        }
+//        private void schedulePeriodicWorkWithInitialDelay() {
+//            // Assume data preparation takes up to 5 minutes
+//            long initialDelay = 15; // minutes
+////
+//            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+//                    DataSendWorker.class, 15, TimeUnit.MINUTES)
+//                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+//                    .build();
+//
+//            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+////        }
+//        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+//                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed
+//                .build();
+>>>>>>> Stashed changes
 
         Button CO2DataCollect = findViewById(R.id.AirQualitybutton);
         CO2DataCollect.setOnClickListener(new View.OnClickListener() {
