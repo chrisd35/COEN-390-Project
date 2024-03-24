@@ -68,6 +68,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainPageActivity<T> extends AppCompatActivity {
+    public static String averageCO2;
+    public static String averageVOC;
+
+    public static String averageSound;
+
+    public static boolean issoundclicked = false;
+    public static boolean isairclicked = false;
     protected ImageView Stats;
     protected ImageView Settings;
     private BluetoothAdapter bluetoothAdapter;
@@ -114,6 +121,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         SoundDataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                issoundclicked = true;
                 //take the "instanteous" reading of the sound leve, by taking the five last element and averaging
                 int size = Sounddata.size();
                 // Start from the fifth-to-last element if there are at least five elements
@@ -130,7 +138,11 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     average = (double) sum / count;
                 }
                 String averageStr = String.format("%.2f", average);
-                Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
+                setAverageSound(averageStr);
+//                Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
+
+                DialogFragment dialog = new DialogFragment();
+                dialog.show(getSupportFragmentManager(),"My Fragment");
             }
         });
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
@@ -201,6 +213,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         CO2DataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                isairclicked = true;
                 //take the "instanteous" reading of the CO2 and VOC level, by taking the five last element and averaging
 
                 int size = Co2data.size();
@@ -235,8 +248,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     averageV = (double) sumV / countV;
                 }
                 String averageStr = String.format("%.2f", average);
+                setAverageC02(averageStr);
+
                 String averageVStr = String.format("%.2f", averageV);
-                Toast.makeText(MainPageActivity.this, "CO2: " + averageStr + " VOC: " + averageVStr, Toast.LENGTH_LONG).show();
+                setAverageVOC(averageVStr);
+//                Toast.makeText(MainPageActivity.this, "CO2: " + averageStr + " VOC: " + averageVStr, Toast.LENGTH_LONG).show();
+                DialogFragment dialog = new DialogFragment();
+                dialog.show(getSupportFragmentManager(),"My Fragment");
+
             }
 
         });
@@ -774,5 +793,25 @@ public class MainPageActivity<T> extends AppCompatActivity {
         }
         currentToast = Toast.makeText(MainPageActivity.this, message, Toast.LENGTH_SHORT);
         currentToast.show();
+    }
+
+    public void setAverageC02(String averageCO2){
+        this.averageCO2 = averageCO2;
+    }
+
+    public void setAverageVOC(String averageVOC){
+        this.averageVOC = averageVOC;
+    }
+    public void setAverageSound(String averageSound){
+        this.averageSound = averageSound;
+    }
+    public String getAverageCO2(){
+        return averageCO2;
+    }
+    public String getAverageVOC(){
+        return averageVOC;
+    }
+    public String getAverageSound(){
+        return averageSound;
     }
 }
