@@ -95,9 +95,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final String CharacteristicTwoUUID = "beb5483e-36e1-4688-b7f5-ea07361b27a9";
     private static final String CharacteristicThreeUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
     private static final long READ_INTERVAL_MS = 1000;
-    private ArrayList<Integer> Co2data = new ArrayList<Integer>();
+    static ArrayList<Integer> Co2data = new ArrayList<Integer>();
     static ArrayList<Integer> Sounddata = new ArrayList<Integer>();
-    private ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+   static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
@@ -145,6 +146,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(),"My Fragment");
             }
         });
+        schedulePeriodicWorkWithInitialDelay();
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
 //            @Override
 //            public void onDataLoaded(List<Double> data) {
@@ -179,15 +181,15 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        }
 //        private void schedulePeriodicWorkWithInitialDelay() {
 //            // Assume data preparation takes up to 5 minutes
-            long initialDelay = 15; // minutes
+//            long initialDelay = 15; // minutes
+////
+//            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+//                    DataSendWorker.class, 15, TimeUnit.MINUTES)
+//                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+//                    .build();
 //
-            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-                    DataSendWorker.class, 15, TimeUnit.MINUTES)
-                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
-                    .build();
-
-            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
-//        }
+//            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+////        }
 //        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
 //                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed
 //                .build();
@@ -629,7 +631,17 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         }
     }
+    private void schedulePeriodicWorkWithInitialDelay() {
+        long initialDelay = 15; // Delay in minutes before the first execution
+        long repeatInterval = 15; // Repeat interval in minutes
 
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                DataSendWorker.class, repeatInterval, TimeUnit.MINUTES)
+                .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+    }
     public void receiveDatafromServer(String date, DataCallback callback){
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()

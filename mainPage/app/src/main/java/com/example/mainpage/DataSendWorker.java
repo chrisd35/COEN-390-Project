@@ -18,7 +18,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class DataSendWorker extends Worker {
-    private String Tag = "HardBLE";
+    private String TAG = "HardBLE";
     public DataSendWorker(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
@@ -28,34 +28,62 @@ public class DataSendWorker extends Worker {
     @Override
     public Result doWork() {
         // Your data sending code here
+        ArrayList<Integer> SounddataToSend = new ArrayList<>(MainPageActivity.Sounddata);
+        ArrayList<Integer> VOCdataToSend = new ArrayList<>(MainPageActivity.VOCdata);
+        ArrayList<Integer> CO2dataToSend = new ArrayList<>(MainPageActivity.Co2data);
 
-        ArrayList<Integer> DummyData = MainPageActivity.Sounddata;
-
-        sendDatatoServer(DummyData); // Implement this method to send data
-        return Result.success();
-    }
-
-    private Result sendDatatoServer(List<Integer> data) {
-        try {
-            RetrofitClient client = RetrofitClient.getInstance();
-            Call<ResponseBody> call = client.getApi().AddSoundData(new SoundDataSendRequest(data));
-            Response<ResponseBody> response = call.execute(); // Execute the call synchronously
-
-            if (response.isSuccessful() && response.body() != null) {
-                String body = response.body().string();
-                // Process the response as needed
-                Log.d(Tag, String.valueOf(data.size()));
-                Log.d(Tag, "Data sent successfully");
-                data.clear();
-                Log.d(Tag, String.valueOf(data.size()));
-                return Result.success();
-            } else {
-                Log.e(Tag, "Failed to send data");
-                return Result.failure();
+        // Log the size of data before sending
+        if (sendDatatoServer(SounddataToSend) && sendVOCDatatoServer(VOCdataToSend)&& sendCO2DatatoServer(CO2dataToSend)) {
+            // If data sent successfully, clear the original data list
+            synchronized (MainPageActivity.Sounddata) {
+                MainPageActivity.Sounddata.clear();
+                MainPageActivity.VOCdata.clear();
+                MainPageActivity.Co2data.clear();
             }
-        } catch (IOException e) {
-            Log.e(Tag, "Network error", e);
+            Log.d(TAG, "Data sent and cleared successfully.");
+            return Result.success();
+        } else {
             return Result.retry();
         }
     }
+
+    private boolean sendCO2DatatoServer(List<Integer> data) {
+        RetrofitClient client = RetrofitClient.getInstance();
+        Call<ResponseBody> call = client.getApi().AddCO2Data(new SoundDataSendRequest(data));
+
+        try {
+            Response<ResponseBody> response = call.execute(); // Execute the call synchronously
+            return response.isSuccessful() && response.body() != null;
+        } catch (IOException e) {
+            Log.e(TAG, "Network error while sending data", e);
+            return false;
+        }
+    }
+
+
+    private boolean sendDatatoServer(List<Integer> data) {
+        RetrofitClient client = RetrofitClient.getInstance();
+        Call<ResponseBody> call = client.getApi().AddSoundData(new SoundDataSendRequest(data));
+
+        try {
+            Response<ResponseBody> response = call.execute(); // Execute the call synchronously
+            return response.isSuccessful() && response.body() != null;
+        } catch (IOException e) {
+            Log.e(TAG, "Network error while sending data", e);
+            return false;
+        }
+    }
+    private boolean sendVOCDatatoServer(List<Integer> data) {
+        RetrofitClient client = RetrofitClient.getInstance();
+        Call<ResponseBody> call = client.getApi().AddVOCData(new SoundDataSendRequest(data));
+
+        try {
+            Response<ResponseBody> response = call.execute(); // Execute the call synchronously
+            return response.isSuccessful() && response.body() != null;
+        } catch (IOException e) {
+            Log.e(TAG, "Network error while sending data", e);
+            return false;
+        }
+    }
+
 }
