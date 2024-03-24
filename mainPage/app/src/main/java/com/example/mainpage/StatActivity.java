@@ -62,8 +62,8 @@ public class StatActivity extends AppCompatActivity {
 //        SoundLevel.addSeries(SoundLevelData);
 
         // Assuming the graph views are defined in your layout XML with ids SoundLevel and AirQuality
-        GraphView soundLevelGraph = findViewById(R.id.SoundLevel);
-        GraphView airQualityGraph = findViewById(R.id.AirQuality);
+        soundLevelGraph = findViewById(R.id.SoundLevel);
+        airQualityGraph = findViewById(R.id.AirQuality);
 
         // Define empty series initially
         soundLevelDataSeries = new BarGraphSeries<>();
@@ -73,7 +73,8 @@ public class StatActivity extends AppCompatActivity {
         soundLevelGraph.addSeries(soundLevelDataSeries);
         airQualityGraph.addSeries(airQualityDataSeries);
 
-        updateGraphs(generateDummyData(dataSize));
+//        updateGraphs(generateDummyData(dataSize));
+        refreshData(); // Initial data retrieval and graph update
 
 //        // Call to fetch data initially
 //        receiveDatafromServer("your_date");
@@ -99,14 +100,14 @@ public class StatActivity extends AppCompatActivity {
 
     }
 
-    private ArrayList<Double> generateDummyData(int size) {
-        ArrayList<Double> dataList = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            double value = Math.random() * 100; // Generate random value between 0 and 100
-            dataList.add(value);
-        }
-        return dataList;
-    }
+//    private ArrayList<Double> generateDummyData(int size) {
+//        ArrayList<Double> dataList = new ArrayList<>();
+//        for (int i = 0; i < size; i++) {
+//            double value = Math.random() * 100; // Generate random value between 0 and 100
+//            dataList.add(value);
+//        }
+//        return dataList;
+//    }
 
     private void updateGraphs(ArrayList<Double> dataList) {
         try {
@@ -126,16 +127,24 @@ public class StatActivity extends AppCompatActivity {
             airQualityGraph.getViewport().setMinX(0);
             airQualityGraph.getViewport().setMaxX(dataList.size() - 1);
         } catch (Exception e) {
-            // Handle any exceptions that occur during graph updating
             e.printStackTrace();
         }
     }
 
-    // Method to refresh data
+    // Method to retrieve data from the server and update graphs
     private void refreshData() {
-        // Generate new dummy data with the same size as the original data list (i.e., 100)
-        ArrayList<Double> newDataList = generateDummyData(dataSize);
-        updateGraphs(newDataList);
+        DataRetrieveWorker.retrieveSoundDataFromServer("your_date", new DataRetrieveWorker.DataCallback() {
+            @Override
+            public void onDataLoaded(ArrayList<Double> dataList) {
+                // Update graphs with the retrieved data
+                updateGraphs(dataList);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                // Handle failure, e.g., show error message
+            }
+        });
     }
 
     @Override
