@@ -146,6 +146,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(),"My Fragment");
             }
         });
+
         schedulePeriodicWorkWithInitialDelay();
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
 //            @Override
@@ -194,6 +195,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed
 //                .build();
 
+
 //        Handler handlerfirstTime=new Handler();
 //        Runnable task = new Runnable() {
 //            @Override
@@ -211,6 +213,8 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        long interval = 60000; // 10 minutes in milliseconds
 //        long startTime = System.currentTimeMillis() + interval;
 //        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startTime, interval, pendingIntent);
+
+
         Button CO2DataCollect = findViewById(R.id.AirQualitybutton);
         CO2DataCollect.setOnClickListener(new View.OnClickListener() {
             @Override

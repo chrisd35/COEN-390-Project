@@ -36,8 +36,13 @@ public interface APIservice {
     Call<ResponseBody> retrieveSoundData(@Body SoundRetrieveData soundRetrieveRequest);
     @POST("AddVOCData")
     Call<ResponseBody> AddVOCData(@Body SoundDataSendRequest soundDataSendRequest);
+    @POST("retrieveVOCData")
+    Call<ResponseBody> retrieveVOCData(@Body SoundRetrieveData soundRetrieveRequest);
     @POST("AddCO2Data")
     Call<ResponseBody> AddCO2Data(@Body SoundDataSendRequest soundDataSendRequest);
+    @POST("retrieveSoundData")
+    Call<ResponseBody> retrieveCO2Data(@Body SoundRetrieveData soundRetrieveRequest);
+
 
 
 }
