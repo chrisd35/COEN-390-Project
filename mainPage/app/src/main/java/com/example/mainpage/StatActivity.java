@@ -4,14 +4,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.appcompat.widget.Toolbar;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.BarGraphSeries;
+//import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -22,11 +21,14 @@ public class StatActivity extends AppCompatActivity {
 
     protected Toolbar toolbar;
     private ImageButton refreshButton;
+    private LineGraphSeries<DataPoint> soundLevelDataSeries;
+    private LineGraphSeries<DataPoint> VOCDataSeries;
+    private LineGraphSeries<DataPoint> CO2DataSeries;
 
-    private BarGraphSeries<DataPoint> soundLevelDataSeries;
-    private LineGraphSeries<DataPoint> airQualityDataSeries;
     private GraphView soundLevelGraph;
-    private GraphView airQualityGraph;
+    private GraphView VOCGraph;
+    private GraphView CO2Graph;
+
     private int dataSize = 100;
 
 
@@ -63,15 +65,18 @@ public class StatActivity extends AppCompatActivity {
 
         // Assuming the graph views are defined in your layout XML with ids SoundLevel and AirQuality
         soundLevelGraph = findViewById(R.id.SoundLevel);
-        airQualityGraph = findViewById(R.id.AirQuality);
+        VOCGraph = findViewById(R.id.VOCQuality);
+        CO2Graph = findViewById(R.id.CO2Quality);
 
         // Define empty series initially
-        soundLevelDataSeries = new BarGraphSeries<>();
-        airQualityDataSeries = new LineGraphSeries<>();
+        soundLevelDataSeries = new LineGraphSeries<>();
+        VOCDataSeries = new LineGraphSeries<>();
+        CO2DataSeries = new LineGraphSeries<>();
 
         // Add empty series to graphs
         soundLevelGraph.addSeries(soundLevelDataSeries);
-        airQualityGraph.addSeries(airQualityDataSeries);
+        VOCGraph.addSeries(VOCDataSeries);
+        CO2Graph.addSeries(CO2DataSeries);
 
 //        updateGraphs(generateDummyData(dataSize));
         refreshData(); // Initial data retrieval and graph update
@@ -112,20 +117,26 @@ public class StatActivity extends AppCompatActivity {
     private void updateGraphs(ArrayList<Double> dataList) {
         try {
             DataPoint[] soundLevelDataPoints = new DataPoint[dataList.size()];
-            DataPoint[] airQualityDataPoints = new DataPoint[dataList.size()];
+            DataPoint[] VOCDataPoints = new DataPoint[dataList.size()];
+            DataPoint[] CO2DataPoints = new DataPoint[dataList.size()];
 
             for (int i = 0; i < dataList.size(); i++) {
                 soundLevelDataPoints[i] = new DataPoint(i, dataList.get(i));
-                airQualityDataPoints[i] = new DataPoint(i, dataList.get(i));
+                VOCDataPoints[i] = new DataPoint(i, dataList.get(i));
+                CO2DataPoints[i] = new DataPoint(i, dataList.get(i));
+
             }
 
             soundLevelDataSeries.resetData(soundLevelDataPoints);
-            airQualityDataSeries.resetData(airQualityDataPoints);
+            VOCDataSeries.resetData(VOCDataPoints);
+            CO2DataSeries.resetData(CO2DataPoints);
 
             soundLevelGraph.getViewport().setMinX(0);
             soundLevelGraph.getViewport().setMaxX(dataList.size() - 1);
-            airQualityGraph.getViewport().setMinX(0);
-            airQualityGraph.getViewport().setMaxX(dataList.size() - 1);
+            VOCGraph.getViewport().setMinX(0);
+            VOCGraph.getViewport().setMaxX(dataList.size() - 1);
+            CO2Graph.getViewport().setMinX(0);
+            CO2Graph.getViewport().setMaxX(dataList.size() - 1);
         } catch (Exception e) {
             e.printStackTrace();
         }

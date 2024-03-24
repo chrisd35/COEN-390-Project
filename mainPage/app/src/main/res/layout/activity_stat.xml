@@ -6,6 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".StatActivity">
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/statsPageToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#4C7F7A"
+        app:title="   "
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
+
 
     <com.jjoe64.graphview.GraphView
         android:id="@+id/SoundLevel"
@@ -18,9 +43,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.218" />
 
+        <TextView
+            android:id="@+id/soundQualityTextView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="20dp"
+            android:text="Sound Quality"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
     <com.jjoe64.graphview.GraphView
-        android:id="@+id/AirQuality"
+        android:id="@+id/VOCQuality"
         android:layout_width="match_parent"
         android:layout_height="200dip"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,39 +67,36 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.787" />
 
-    <TextView
-        android:id="@+id/textView3"
+        <TextView
+            android:id="@+id/VOCQualityTextView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="20dp"
+            android:text="VOC Quality"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/CO2Quality"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:text="Sound Level"
-        android:textAlignment="center"
-        android:textSize="20dp"
+        android:layout_height="200dip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.11" />
+        app:layout_constraintVertical_bias="0.787" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/statsPageToolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#4C7F7A"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="   "
-        app:titleTextColor="#FFFFFF"
-        tools:layout_editor_absoluteX="186dp" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/CO2QualityTextView"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:textSize="20dp"
-        android:text="Air Quality"
+        android:text="CO2 Quality"
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -81,4 +115,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
