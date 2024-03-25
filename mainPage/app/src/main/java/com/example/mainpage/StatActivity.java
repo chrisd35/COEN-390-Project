@@ -187,10 +187,10 @@ private void refreshData() {
             soundLevelGraph.getViewport().setMaxY(2000);
 
             // Allows to zoom and scroll within the graphs
-            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
-            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
-            soundLevelGraph.getViewport().setScalable(true);
-            soundLevelGraph.getViewport().setScalableY(true);
+//            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
+//            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
+//            soundLevelGraph.getViewport().setScalable(true);
+//            soundLevelGraph.getViewport().setScalableY(true);
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
@@ -223,10 +223,10 @@ private void refreshData() {
             VOCGraph.getViewport().setMaxY(2000);
 
             // Allow zoom and scroll
-            VOCGraph.getViewport().setScrollable(true);
-            VOCGraph.getViewport().setScrollableY(true);
-            VOCGraph.getViewport().setScalable(true);
-            VOCGraph.getViewport().setScalableY(true);
+//            VOCGraph.getViewport().setScrollable(true);
+//            VOCGraph.getViewport().setScrollableY(true);
+//            VOCGraph.getViewport().setScalable(true);
+//            VOCGraph.getViewport().setScalableY(true);
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
@@ -257,13 +257,13 @@ private void refreshData() {
 
             // Set Y bounds for CO2 graph
             CO2Graph.getViewport().setMinY(0);
-            CO2Graph.getViewport().setMaxY(2000);
+            CO2Graph.getViewport().setMaxY(9000);
 
             // Allow zoom and scroll
-            CO2Graph.getViewport().setScrollable(true);
-            CO2Graph.getViewport().setScrollableY(true);
-            CO2Graph.getViewport().setScalable(true);
-            CO2Graph.getViewport().setScalableY(true);
+//            CO2Graph.getViewport().setScrollable(true);
+//            CO2Graph.getViewport().setScrollableY(true);
+//            CO2Graph.getViewport().setScalable(true);
+//            CO2Graph.getViewport().setScalableY(true);
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
