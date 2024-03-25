@@ -16,8 +16,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="   "
-        app:titleTextColor="#FFFFFF"
+        app:title="Settings"
         tools:layout_editor_absoluteX="186dp" />
 
     <Spinner

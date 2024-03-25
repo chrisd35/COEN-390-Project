@@ -40,7 +40,7 @@ public interface APIservice {
     Call<ResponseBody> retrieveVOCData(@Body SoundRetrieveData soundRetrieveRequest);
     @POST("AddCO2Data")
     Call<ResponseBody> AddCO2Data(@Body SoundDataSendRequest soundDataSendRequest);
-    @POST("retrieveSoundData")
+    @POST("retrieveCO2Data")
     Call<ResponseBody> retrieveCO2Data(@Body SoundRetrieveData soundRetrieveRequest);
 
 
