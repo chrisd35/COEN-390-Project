@@ -21,6 +21,8 @@ public class SettingsActivity extends AppCompatActivity {
     protected ImageButton infoButton;
     protected Spinner spinnerDBLevels;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
