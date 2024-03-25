@@ -4,6 +4,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -114,6 +115,10 @@ private void refreshData() {
     DataRetrieveWorker.retrieveSoundDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
         @Override
         public void onDataLoaded(ArrayList<Double> soundDataList) {
+            // Log the data size of sound dataset
+            Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
+            Log.d("HardBLE",String.valueOf(soundDataList.size()));
+
             // Update sound level graph with the retrieved sound data
             updateSoundLevelGraph(soundDataList);
 
@@ -121,13 +126,22 @@ private void refreshData() {
             DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
                 @Override
                 public void onDataLoaded(ArrayList<Double> vocDataList) {
+                    // Log the data size of VOC dataset
+                    Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
+                    Log.d("HardBLE",String.valueOf(vocDataList.size()));
+
                     // Update VOC graph with the retrieved VOC data
                     updateVOCGraph(vocDataList);
+
 
                     // Call method to retrieve CO2 data
                     DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
                         @Override
                         public void onDataLoaded(ArrayList<Double> co2DataList) {
+                            // Log the data size of CO2 dataset
+                            Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
+                            Log.d("HardBLE",String.valueOf(co2DataList.size()));
+
                             // Update CO2 graph with the retrieved CO2 data
                             updateCO2Graph(co2DataList);
                         }
@@ -232,7 +246,10 @@ private void refreshData() {
                 co2DataPoints[i] = new DataPoint(i, co2DataList.get(i));
             }
 
+
             CO2DataSeries.resetData(co2DataPoints);
+
+            Log.d("HardBLE",String.valueOf(co2DataList.size()));
 
             // Set X bounds for CO2 graph
             CO2Graph.getViewport().setMinX(0);

@@ -29,7 +29,7 @@
                 android:background="#4C7F7A"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme"
-                app:title="   " />
+                app:title="Daily Forecast" />
 
 
             <com.jjoe64.graphview.GraphView
