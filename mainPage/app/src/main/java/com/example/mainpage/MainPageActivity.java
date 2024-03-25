@@ -582,7 +582,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
             } else {
                 Log.d(Tag, "Permission BLUETOOTH_SCAN DENIED");
-                showRationaleDialog("Bluetooth scan permission is necessary for scanning Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_SCAN);
+//                showRationaleDialog("Bluetooth scan permission is necessary for scanning Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_SCAN);
             }
 
 
@@ -594,7 +594,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
             } else {
                 Log.d(Tag, "PermissionBLUETOOTH_CONNECT DENIED ");
-                showRationaleDialog("Bluetooth connect permission is necessary for connecting to Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_CONNECT);
+//                showRationaleDialog("Bluetooth connect permission is necessary for connecting to Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_CONNECT);
             }
         }
     }
