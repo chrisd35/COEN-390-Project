@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
+    android:background="@color/background"
+    android:statusBarColor="@color/background"
     tools:context=".StatActivity">
 
     <androidx.core.widget.NestedScrollView
@@ -26,7 +28,8 @@
                 android:id="@+id/statsPageToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#4C7F7A"
+                android:background="@color/ToolbarBackgroundColor"
+                app:titleTextColor="@color/ToolbarTextColor"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme"
                 app:title="Daily Forecast" />
@@ -49,6 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="Sound Quality"
+                android:textColor="@color/TextViewColor"
                 android:textAlignment="center"
                 android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -73,6 +77,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:text="VOC Quality"
+                android:textColor="@color/TextViewColor"
                 android:textAlignment="center"
                 android:textSize="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -108,7 +113,7 @@
                 android:id="@+id/refreshButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#4C7F7A"
+                android:backgroundTint="@color/buttonTint"
                 android:src="@android:drawable/stat_notify_sync"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
