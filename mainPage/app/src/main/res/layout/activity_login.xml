@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DDC4E3DF"
+    android:background="@color/background"
+    android:statusBarColor="@color/background"
     tools:context=".loginActivity">
 
     <Button
         android:id="@+id/loginButton"
         android:layout_width="253dp"
         android:layout_height="70dp"
-        android:backgroundTint="#4C7F7A"
+        android:backgroundTint="@color/buttonTint"
         android:text="Login"
-        android:textColor="#DDEDEC"
+        android:textColor="@color/buttonTextColor"
         android:textSize="20sp"
         app:cornerRadius="10sp"
         app:iconPadding="2dp"
@@ -31,6 +32,7 @@
         android:ems="10"
         android:inputType="text"
         android:hint="Name"
+        android:textColorHint="@color/EditTextHintColor"
         app:layout_constraintBottom_toTopOf="@+id/passwordLoginEditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
@@ -45,23 +47,26 @@
         android:ems="10"
         android:inputType="textPassword"
         android:hint="Password"
+        android:textColorHint="@color/EditTextHintColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/loginPageToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#4C7F7A"
+        android:background="@color/ToolbarBackgroundColor"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="   "
-        app:titleTextColor="#FFFFFF"
+        app:title="  "
+        app:titleTextColor="@color/ToolbarTextColor"
         tools:layout_editor_absoluteX="186dp" />
+
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="398dp"

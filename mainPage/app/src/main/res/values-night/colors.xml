@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Background color -->
+    <color name="background">#15202B</color> <!-- Dark blue background color -->
+
+    <!-- Button -->
+    <color name="buttonTextColor">#FFFFFF</color> <!-- Button text color in dark mode -->
+    <color name="buttonTint">#264C72</color> <!-- Primary button tint color in dark mode -->
+    <color name="buttonTint2">#325983</color> <!-- Secondary button tint color in dark mode -->
+
+    <!-- EditText -->
+    <color name="EditTextHintColor">#657B8A</color> <!-- EditText hint color in dark mode -->
+
+    <!-- Toolbar -->
+    <color name="ToolbarBackgroundColor">#FF19324A</color> <!-- Toolbar background color in dark mode -->
+    <color name="ToolbarTextColor">#FFFFFF</color> <!-- Toolbar text color in dark mode -->
+
+    <!-- TextView -->
+    <color name="TextViewColor">#FFFFFF</color> <!-- Text color for TextViews in dark mode -->
+
+</resources>
