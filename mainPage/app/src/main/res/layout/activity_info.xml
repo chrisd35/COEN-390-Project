@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DDC4E3DF"
+    android:background="@color/background"
+    android:statusBarColor="@color/background"
     tools:context=".infoActivity">
 
     <androidx.core.widget.NestedScrollView
@@ -20,7 +21,7 @@
                 android:id="@+id/infoPageToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#4C7F7A"
+                android:background="@color/ToolbarBackgroundColor"
                 app:title="   "
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme" />
@@ -33,6 +34,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/TextViewColor"
                 android:text="The following table is provided by the Government of Canada which shows us the allowed level and maximum permitted hours one can be exposed to high levels of noise at a workplace. Table 1 shows us the Noise Exposure limits of standard jurisdictions, whereas Table 2 shows us the levels at Quebec." />
 
             <ImageView
@@ -45,12 +47,14 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/TextViewColor"
                 android:text="Prolonged noise levels above 75-85 will cause permanent hearing damage. You should use these charts as an example and set the levels you want to be alerted to. It is recommended to wear ear protection equipment as much as possible to protect yourself." />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:textColor="@color/TextViewColor"
                 android:text="The air around us may seem invisible, however, it is crucial to our health and safety. Increased levels of CO2 can lead to increased tiredness, headaches, eye irritations, decreased brain activity, and more. The long-term exposure according to the Government of Canada is 1000ppm. They recommend levels reach no greater than 700ppm." />
 
             <View

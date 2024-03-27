@@ -10,12 +10,11 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button signUpButton, loginButton, homePageButton, tempButton;
+    Button signUpButton, loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_main);
         setup();
     }
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private void setup() {
         signUpButton = findViewById(R.id.goToSignUpButton);
         loginButton = findViewById(R.id.goToLoginButton);
-        homePageButton = findViewById(R.id.goToHomePageButton);
+
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,20 +37,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        homePageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToHomePage();
-            }
-        });
 
 
     }
 
-    private void goToHomePage() {
-        Intent intent = new Intent(this, MainPageActivity.class);
-        startActivity(intent);
-    }
+
 
     private void goToLoginPage() {
         Intent intent = new Intent(this, loginActivity.class);
