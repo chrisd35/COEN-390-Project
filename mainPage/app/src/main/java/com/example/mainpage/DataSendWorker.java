@@ -28,19 +28,41 @@ public class DataSendWorker extends Worker {
     @Override
     public Result doWork() {
         // Your data sending code here
-        ArrayList<Integer> SounddataToSend = new ArrayList<>(MainPageActivity.Sounddata);
-        ArrayList<Integer> VOCdataToSend = new ArrayList<>(MainPageActivity.VOCdata);
-        ArrayList<Integer> CO2dataToSend = new ArrayList<>(MainPageActivity.Co2data);
+        ArrayList<Integer> soundDataToSend = new ArrayList<>(MainPageActivity.Sounddata);
+        ArrayList<Integer> vocDataToSend = new ArrayList<>(MainPageActivity.VOCdata);
+        ArrayList<Integer> co2DataToSend = new ArrayList<>(MainPageActivity.Co2data);
 
-        // Log the size of data before sending
-        if (sendDatatoServer(SounddataToSend) && sendVOCDatatoServer(VOCdataToSend)&& sendCO2DatatoServer(CO2dataToSend)) {
-            // If data sent successfully, clear the original data list
+        boolean soundDataSent = false, vocDataSent = false, co2DataSent = false;
+
+        // Send Sound data and clear if successful
+        if (sendDatatoServer(soundDataToSend)) {
             synchronized (MainPageActivity.Sounddata) {
                 MainPageActivity.Sounddata.clear();
+            }
+            soundDataSent = true;
+            Log.d(TAG, "Sound data sent and cleared successfully.");
+        }
+
+        // Send VOC data and clear if successful
+        if (sendVOCDatatoServer(vocDataToSend)) {
+            synchronized (MainPageActivity.VOCdata) {
                 MainPageActivity.VOCdata.clear();
+            }
+            vocDataSent = true;
+            Log.d(TAG, "VOC data sent and cleared successfully.");
+        }
+
+        // Send CO2 data and clear if successful
+        if (sendCO2DatatoServer(co2DataToSend)) {
+            synchronized (MainPageActivity.Co2data) {
                 MainPageActivity.Co2data.clear();
             }
-            Log.d(TAG, "Data sent and cleared successfully.");
+            co2DataSent = true;
+            Log.d(TAG, "CO2 data sent and cleared successfully.");
+        }
+
+        // Check if all data types were sent successfully
+        if (soundDataSent && vocDataSent && co2DataSent) {
             return Result.success();
         } else {
             return Result.retry();
@@ -56,6 +78,7 @@ public class DataSendWorker extends Worker {
             return response.isSuccessful() && response.body() != null;
         } catch (IOException e) {
             Log.e(TAG, "Network error while sending data", e);
+            Log.e(TAG,  e.getMessage());
             return false;
         }
     }
@@ -70,6 +93,7 @@ public class DataSendWorker extends Worker {
             return response.isSuccessful() && response.body() != null;
         } catch (IOException e) {
             Log.e(TAG, "Network error while sending data", e);
+            Log.e(TAG,  e.getMessage());
             return false;
         }
     }
@@ -82,6 +106,7 @@ public class DataSendWorker extends Worker {
             return response.isSuccessful() && response.body() != null;
         } catch (IOException e) {
             Log.e(TAG, "Network error while sending data", e);
+            Log.e(TAG,  e.getMessage());
             return false;
         }
     }
