@@ -3,7 +3,7 @@ package com.example.mainpage.API;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.example.mainpage.API.Model.SoundDataSendRequest;
+import com.example.mainpage.API.Model.DataSendRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +21,7 @@ public class NetworkUtil {
         Call<ResponseBody> call = RetrofitClient
                 .getInstance()
                 .getApi()
-                .AddSoundData(new SoundDataSendRequest(data));
+                .AddSoundData(new DataSendRequest(data));
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override

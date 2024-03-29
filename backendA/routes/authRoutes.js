@@ -12,4 +12,6 @@ router.post("/AddVOCdata",authController.AddVOCData)
 router.post("/AddCO2Data",authController.AddCO2Data)
 router.post("/retrieveCO2Data",authController.getCO2Data)
 router.post("/retrieveVOCData",authController.getVOCData)
+router.post("/setSoundThreshold",authController.setSoundThreshold)
+router.get("/getSoundThreshold",authController.getSoundThreshold)
 module.exports=router;

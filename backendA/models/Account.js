@@ -15,6 +15,7 @@ const userAccountSchema = new Schema({
     id: String,
     username: String,
     password: String,
-    Data: [soundDataSchema]
+    Data: [soundDataSchema],
+    SoundThreshold:Number
 })
 module.exports = mongoose.model("Account", userAccountSchema);

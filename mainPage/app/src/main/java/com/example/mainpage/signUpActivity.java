@@ -105,6 +105,7 @@ public class signUpActivity extends AppCompatActivity {
     public void gotoMainPageActivity(){
         Intent intent = new Intent(this, MainPageActivity.class);
         startActivity(intent);
+
     }
 
 }

@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.mainpage.API.Model.SoundDataSendRequest;
+import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.RetrofitClient;
 
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class DataSendWorker extends Worker {
 
     private boolean sendCO2DatatoServer(List<Integer> data) {
         RetrofitClient client = RetrofitClient.getInstance();
-        Call<ResponseBody> call = client.getApi().AddCO2Data(new SoundDataSendRequest(data));
+        Call<ResponseBody> call = client.getApi().AddCO2Data(new DataSendRequest(data));
 
         try {
             Response<ResponseBody> response = call.execute(); // Execute the call synchronously
@@ -86,7 +86,7 @@ public class DataSendWorker extends Worker {
 
     private boolean sendDatatoServer(List<Integer> data) {
         RetrofitClient client = RetrofitClient.getInstance();
-        Call<ResponseBody> call = client.getApi().AddSoundData(new SoundDataSendRequest(data));
+        Call<ResponseBody> call = client.getApi().AddSoundData(new DataSendRequest(data));
 
         try {
             Response<ResponseBody> response = call.execute(); // Execute the call synchronously
@@ -99,7 +99,7 @@ public class DataSendWorker extends Worker {
     }
     private boolean sendVOCDatatoServer(List<Integer> data) {
         RetrofitClient client = RetrofitClient.getInstance();
-        Call<ResponseBody> call = client.getApi().AddVOCData(new SoundDataSendRequest(data));
+        Call<ResponseBody> call = client.getApi().AddVOCData(new DataSendRequest(data));
 
         try {
             Response<ResponseBody> response = call.execute(); // Execute the call synchronously
