@@ -15,7 +15,6 @@ import androidx.work.WorkManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -46,10 +45,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.mainpage.API.DataCallback;
-import com.example.mainpage.API.Model.SoundDataSendRequest;
-import com.example.mainpage.API.Model.SoundRetrieveData;
+import com.example.mainpage.API.Model.DataSendRequest;
+import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.RetrofitClient;
 import com.example.mainpage.API.SendDataCallback;
+import com.example.mainpage.API.ThresholdData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,8 +62,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -78,6 +76,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
     public static String averageSound;
 
+    private long lastNotificationTime = 0;
+//    private static final long NOTIFICATION_DELAY = 60000;
+    private static final long NOTIFICATION_DELAY = 900000;
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
     protected ImageView Stats;
@@ -108,11 +109,12 @@ public class MainPageActivity<T> extends AppCompatActivity {
     Button SoundDataCollect;
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
+    private ThresholdData thresholdData;
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(Tag,"NEWINTENT");
+        Log.d(Tag,"OnCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
         Stats = findViewById(R.id.imageView3);
@@ -120,7 +122,8 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         SoundDataCollect= findViewById(R.id.SoundButton);
         Button Logout = findViewById(R.id.LogoutButton);
-
+        thresholdData = new ThresholdData(this);
+        thresholdData.fetchAndSetThreshold();
         Logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -463,8 +466,15 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     //store the value into to the proper array
                     if (characteristic.getUuid().toString().equals(CharacteristicOneUUID)) {
                         Co2data.add(intValue);
-                        if(intValue==10){
+                        //put it in to the sounddata characteristics
+                        long currentTime = System.currentTimeMillis();
+                        int currentThreshold = thresholdData.getSavedThreshold();
+                        boolean thresholdDataexist=thresholdData.ThresholdExist();
+                        Log.d(Tag,"Threshold"+String.valueOf(currentThreshold));
+                        Log.d(Tag,"DataExist"+String.valueOf(thresholdDataexist));
+                        if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
                             makeNotification("Threshold Notification");
+                            lastNotificationTime = currentTime; // Update the last notification time
                         }
                     } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
                         Sounddata.add(intValue);
@@ -674,7 +684,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .retrieveSoundData(new SoundRetrieveData(date));
+                .retrieveSoundData(new RetrieveData(date));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -718,7 +728,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .AddSoundData(new SoundDataSendRequest(data));
+                .AddSoundData(new DataSendRequest(data));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -744,7 +754,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .AddSoundData(new SoundDataSendRequest(data));
+                .AddSoundData(new DataSendRequest(data));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -835,9 +845,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     }
 
     public void gotoLogout(){
-//        Intent intent = new Intent(this, MainActivity.class);
-//        startActivity(intent);
-        makeNotification("Noise has Exceeded threshold Level");
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
     }
     private void showToast(String message) {
         if (currentToast != null) {
@@ -902,10 +913,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
         notificationManager.notify(0, builder.build());
     }
 
+
     public void setAverageC02(String averageCO2){
         this.averageCO2 = averageCO2;
     }
-
+    @Override
+    public void onBackPressed() {
+        return;
+    }
     public void setAverageVOC(String averageVOC){
         this.averageVOC = averageVOC;
     }

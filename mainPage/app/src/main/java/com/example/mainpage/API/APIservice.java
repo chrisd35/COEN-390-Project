@@ -1,7 +1,8 @@
 package com.example.mainpage.API;
 
-import com.example.mainpage.API.Model.SoundDataSendRequest;
-import com.example.mainpage.API.Model.SoundRetrieveData;
+import com.example.mainpage.API.Model.DataSendRequest;
+import com.example.mainpage.API.Model.RetrieveData;
+import com.example.mainpage.API.Model.SetThresholdRequest;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -31,17 +32,21 @@ public interface APIservice {
     Call<ResponseBody> isAuthorized();
 
     @POST("AddSoundData")
-    Call<ResponseBody> AddSoundData(@Body SoundDataSendRequest soundDataSendRequest);
+    Call<ResponseBody> AddSoundData(@Body DataSendRequest dataSendRequest);
     @POST("retrieveSoundData")
-    Call<ResponseBody> retrieveSoundData(@Body SoundRetrieveData soundRetrieveRequest);
+    Call<ResponseBody> retrieveSoundData(@Body RetrieveData soundRetrieveRequest);
     @POST("AddVOCData")
-    Call<ResponseBody> AddVOCData(@Body SoundDataSendRequest soundDataSendRequest);
+    Call<ResponseBody> AddVOCData(@Body DataSendRequest dataSendRequest);
     @POST("retrieveVOCData")
-    Call<ResponseBody> retrieveVOCData(@Body SoundRetrieveData soundRetrieveRequest);
+    Call<ResponseBody> retrieveVOCData(@Body RetrieveData soundRetrieveRequest);
     @POST("AddCO2Data")
-    Call<ResponseBody> AddCO2Data(@Body SoundDataSendRequest soundDataSendRequest);
+    Call<ResponseBody> AddCO2Data(@Body DataSendRequest dataSendRequest);
     @POST("retrieveCO2Data")
-    Call<ResponseBody> retrieveCO2Data(@Body SoundRetrieveData soundRetrieveRequest);
+    Call<ResponseBody> retrieveCO2Data(@Body RetrieveData soundRetrieveRequest);
+    @POST("setSoundThreshold")
+    Call<ResponseBody> setSoundThreshold(@Body SetThresholdRequest setThresholdRequest);
+    @GET("getSoundThreshold")
+    Call<ResponseBody> getSoundThreshold();
 
 
 
