@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 const passport = require('passport');
 const saltRounds = 10;
-// let userId;
-let userId="49ba77e3-4232-4d7d-8c14-8032f20d1a33";
+let userId;
+// let userId="49ba77e3-4232-4d7d-8c14-8032f20d1a33";
 let authenticationcheck;
 exports.signup = async (req, res) => {
     const UserAccount = await Account.findOne({ username: req.body.username }).exec()
