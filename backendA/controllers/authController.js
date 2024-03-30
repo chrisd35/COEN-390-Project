@@ -320,3 +320,32 @@ exports.getSoundThreshold=async (req,res,next)=>{
     }
     
 }
+exports.addData = async (req, res, next) => {
+    try {
+        const { soundValues, vocValues, co2Values } = req.body;
+        const currentDate = moment(new Date()).format("YYYY-MM-DD");
+
+        const user = await Account.findOne({ id: userId });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Find or create the entry for the current date
+        let dataEntry = user.Data.find(entry => moment(entry.date).format("YYYY-MM-DD") === currentDate);
+        if (!dataEntry) {
+            dataEntry = { date: currentDate, SoundLevel: [], VOC: [], CO2: [] };
+            user.Data.push(dataEntry);
+        }
+
+        // Update the existing entry
+        dataEntry.SoundLevel.push(...soundValues);
+        dataEntry.VOC.push(...vocValues);
+        dataEntry.CO2.push(...co2Values);
+
+        await user.save(); // Save the updated document
+        return res.json({ message: "Data updated successfully" });
+    } catch (error) {
+        console.error("Error updating data:", error);
+        return res.status(500).json({ message: "Error updating data", error: error.message });
+    }
+};

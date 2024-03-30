@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.mainpage.API.Model.AllDataSendRequest;
 import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.RetrofitClient;
 
@@ -27,45 +28,65 @@ public class DataSendWorker extends Worker {
 
     @Override
     public Result doWork() {
-        // Your data sending code here
         ArrayList<Integer> soundDataToSend = new ArrayList<>(MainPageActivity.Sounddata);
         ArrayList<Integer> vocDataToSend = new ArrayList<>(MainPageActivity.VOCdata);
         ArrayList<Integer> co2DataToSend = new ArrayList<>(MainPageActivity.Co2data);
 
-        boolean soundDataSent = false, vocDataSent = false, co2DataSent = false;
-
-        // Send Sound data and clear if successful
-        if (sendDatatoServer(soundDataToSend)) {
+        // Send all data and clear if successful
+        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend)) {
             synchronized (MainPageActivity.Sounddata) {
                 MainPageActivity.Sounddata.clear();
             }
-            soundDataSent = true;
-            Log.d(TAG, "Sound data sent and cleared successfully.");
-        }
-
-        // Send VOC data and clear if successful
-        if (sendVOCDatatoServer(vocDataToSend)) {
             synchronized (MainPageActivity.VOCdata) {
                 MainPageActivity.VOCdata.clear();
             }
-            vocDataSent = true;
-            Log.d(TAG, "VOC data sent and cleared successfully.");
-        }
-
-        // Send CO2 data and clear if successful
-        if (sendCO2DatatoServer(co2DataToSend)) {
             synchronized (MainPageActivity.Co2data) {
                 MainPageActivity.Co2data.clear();
             }
-            co2DataSent = true;
-            Log.d(TAG, "CO2 data sent and cleared successfully.");
-        }
-
-        // Check if all data types were sent successfully
-        if (soundDataSent && vocDataSent && co2DataSent) {
+            Log.d(TAG, "All data sent and cleared successfully.");
             return Result.success();
         } else {
             return Result.retry();
+        }
+    }
+//    @Override
+//    public Result doWork() {
+//        // Synchronize the copy and clear operations to ensure data consistency
+//        synchronized (MainPageActivity.Sounddata) {
+//            ArrayList<Integer> soundDataToSend = new ArrayList<>(MainPageActivity.Sounddata);
+//            MainPageActivity.Sounddata.clear();  // Clear the data after copying
+//        }
+//
+//        synchronized (MainPageActivity.VOCdata) {
+//            ArrayList<Integer> vocDataToSend = new ArrayList<>(MainPageActivity.VOCdata);
+//            MainPageActivity.VOCdata.clear();  // Clear the data after copying
+//        }
+//
+//        synchronized (MainPageActivity.Co2data) {
+//            ArrayList<Integer> co2DataToSend = new ArrayList<>(MainPageActivity.Co2data);
+//            MainPageActivity.Co2data.clear();  // Clear the data after copying
+//        }
+//
+//        // Now send the copied data
+//        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend)) {
+//            Log.d(TAG, "All data sent and cleared successfully.");
+//            return Result.success();
+//        } else {
+//            return Result.retry();
+//        }
+//    }
+
+
+    private boolean sendAlldata(ArrayList<Integer> sound, ArrayList<Integer> voc, ArrayList<Integer> co2) {
+        RetrofitClient client = RetrofitClient.getInstance();
+        Call<ResponseBody> call = client.getApi().AddData(new AllDataSendRequest(sound, voc, co2));
+
+        try {
+            Response<ResponseBody> response = call.execute(); // Execute the call synchronously
+            return response.isSuccessful() && response.body() != null;
+        } catch (IOException e) {
+            Log.e(TAG, "Network error while sending all data", e);
+            return false;
         }
     }
 

@@ -77,7 +77,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static String averageSound;
 
     private long lastNotificationTime = 0;
-//    private static final long NOTIFICATION_DELAY = 60000;
+    //    private static final long NOTIFICATION_DELAY = 60000;
     private static final long NOTIFICATION_DELAY = 900000;
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
@@ -105,29 +105,33 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final long READ_INTERVAL_MS = 1000;
     static ArrayList<Integer> Co2data = new ArrayList<Integer>();
     static ArrayList<Integer> Sounddata = new ArrayList<Integer>();
-   static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+    static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
     Button SoundDataCollect;
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
     private ThresholdData thresholdData;
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
 
+    private Authentication authentication;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(Tag,"OnCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
+        authentication = new Authentication(getBaseContext());
+        authentication.verifyAuthentication();
         Stats = findViewById(R.id.imageView3);
         Settings = findViewById(R.id.imageButton);
 
-        SoundDataCollect= findViewById(R.id.SoundButton);
+        SoundDataCollect = findViewById(R.id.SoundButton);
         Button Logout = findViewById(R.id.LogoutButton);
         thresholdData = new ThresholdData(this);
         thresholdData.fetchAndSetThreshold();
         Logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                gotoLogout();
+                authentication.logout();
             }
         });
         SoundDataCollect.setOnClickListener(new View.OnClickListener() {
@@ -154,7 +158,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //                Toast.makeText(MainPageActivity.this, "Current dB is :" + averageStr, Toast.LENGTH_LONG).show();
 
                 DialogFragment dialog = new DialogFragment();
-                dialog.show(getSupportFragmentManager(),"My Fragment");
+                dialog.show(getSupportFragmentManager(), "My Fragment");
             }
         });
 
@@ -272,7 +276,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 setAverageVOC(averageVStr);
 //                Toast.makeText(MainPageActivity.this, "CO2: " + averageStr + " VOC: " + averageVStr, Toast.LENGTH_LONG).show();
                 DialogFragment dialog = new DialogFragment();
-                dialog.show(getSupportFragmentManager(),"My Fragment");
+                dialog.show(getSupportFragmentManager(), "My Fragment");
 
             }
 
@@ -377,41 +381,61 @@ public class MainPageActivity<T> extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             checkPermissions();
         }
-        bluetoothLeScanner.startScan(new ScanCallback() {
-
-            @Override
-
-            public void onScanResult(int callbackType, ScanResult result) {
-                super.onScanResult(callbackType, result);
-                BluetoothDevice device = result.getDevice();
-                String targetDeviceName = "ESP32";
-
-                Log.d(Tag, "Scanning");
-//                showToast("Scanning for Device");
-
-
-                if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-
-                }
-                if (device.getName() != null && device.getName().equals(targetDeviceName)) {
-                    Log.d(Tag, "FoundDevice: " + targetDeviceName);
-
-                    if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                        checkScanningpermission();
-                    }
-                    bluetoothLeScanner.stopScan(this); // Stop scanning as the target device is found
-                    connectToDevice(device); // Proceed to connect to the device
-                }
-            }
-        });
+        bluetoothLeScanner.startScan(scanCallback);
+//        bluetoothLeScanner.startScan(new ScanCallback() {
+//
+//            @Override
+//
+//            public void onScanResult(int callbackType, ScanResult result) {
+//                super.onScanResult(callbackType, result);
+//                BluetoothDevice device = result.getDevice();
+//                String targetDeviceName = "ESP32";
+//
+//                Log.d(Tag, "Scanning");
+////                showToast("Scanning for Device");
+//
+//
+//                if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//
+//                }
+//                if (device.getName() != null && device.getName().equals(targetDeviceName)) {
+//                    Log.d(Tag, "FoundDevice: " + targetDeviceName);
+//
+//                    if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+//                        checkScanningpermission();
+//                    }
+//                    bluetoothLeScanner.stopScan(this); // Stop scanning as the target device is found
+//                    connectToDevice(device); // Proceed to connect to the device
+//                }
+//            }
+//        });
     }
 
+    private final ScanCallback scanCallback = new ScanCallback() {
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            BluetoothDevice device = result.getDevice();
+            String targetDeviceName = "ESP32";
+            Log.d(Tag, "Scanning");
+
+
+            if (device.getName() != null && device.getName().equals(targetDeviceName)) {
+                Log.d(Tag, "FoundDevice: " + targetDeviceName);
+                bluetoothLeScanner.stopScan(this);
+                connectToDevice(device);
+            }
+        }
+    };
+    private LinkedList<BluetoothGatt> gattInstances = new LinkedList<>();
     @SuppressLint("MissingPermission")
     private void connectToDevice(BluetoothDevice device) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             checkPermissions();
             return;
         }
+
         bluetoothGatt = device.connectGatt(this, false, new BluetoothGattCallback() {
             @Override
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -467,17 +491,18 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     if (characteristic.getUuid().toString().equals(CharacteristicOneUUID)) {
                         Co2data.add(intValue);
                         //put it in to the sounddata characteristics
+
+                    } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
+                        Sounddata.add(intValue);
                         long currentTime = System.currentTimeMillis();
                         int currentThreshold = thresholdData.getSavedThreshold();
-                        boolean thresholdDataexist=thresholdData.ThresholdExist();
-                        Log.d(Tag,"Threshold"+String.valueOf(currentThreshold));
-                        Log.d(Tag,"DataExist"+String.valueOf(thresholdDataexist));
+                        boolean thresholdDataexist = thresholdData.ThresholdExist();
+                        Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
+                        Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
                         if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
                             makeNotification("Threshold Notification");
                             lastNotificationTime = currentTime; // Update the last notification time
                         }
-                    } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
-                        Sounddata.add(intValue);
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
                         VOCdata.add(intValue);
                     }
@@ -500,6 +525,8 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
 
         });
+        gattInstances.add(bluetoothGatt);
+
 
 
     }
@@ -597,6 +624,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
             Log.e(Tag, "Error in readNextCharacteristic: " + e.getMessage());
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -621,8 +649,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 Log.d(Tag, "PermissionBLUETOOTH_CONNECT DENIED ");
 //                showRationaleDialog("Bluetooth connect permission is necessary for connecting to Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_CONNECT);
             }
-        }
-        else if (requestCode == PERMISSION_POST_NOTIFICATIONS) {
+        } else if (requestCode == PERMISSION_POST_NOTIFICATIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(Tag, "Permission POST_NOTIFICATIONS Granted");
                 // You may want to check or continue some action that requires this permission
@@ -631,11 +658,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 // showRationaleDialog("Posting notifications permission is necessary. Please grant the permission to continue.", PERMISSION_POST_NOTIFICATIONS);
             }
 
-    }}
+        }
+    }
+
     public void stopReading() {
         shouldContinueReading = false;
         handler.removeCallbacksAndMessages(null); // Remove all callbacks and messages
     }
+
     private void showRationaleDialog(String message, int permissionRequestCode) {
         new AlertDialog.Builder(this)
                 .setTitle("Permission Required")
@@ -652,22 +682,27 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 .show();
     }
 
+    @SuppressLint("MissingPermission")
     protected void onDestroy() {
         super.onDestroy();
         Log.d(Tag, "DESTROY");
+
+        // Stop the Bluetooth scanning explicitly if it's still running
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+
+        }
+        WorkManager.getInstance(this).cancelAllWork();
         if (bluetoothGatt != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                checkPermissions();
-                return;
+                handler.removeCallbacks(readCharacteristicRunnable);
+            while (!gattInstances.isEmpty()) {
+                BluetoothGatt gatt = gattInstances.pop();
+                gatt.disconnect();
+                gatt.close();
             }
-            handler.removeCallbacks(readCharacteristicRunnable);
-            if (bluetoothGatt != null) {
-                bluetoothGatt.disconnect();
-                bluetoothGatt.close();
                 bluetoothGatt = null;
             }
 
-        }
     }
     private void schedulePeriodicWorkWithInitialDelay() {
         long initialDelay = 15; // Delay in minutes before the first execution
@@ -675,7 +710,6 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
                 DataSendWorker.class, repeatInterval, TimeUnit.MINUTES)
-                .setInitialDelay(initialDelay, TimeUnit.MINUTES)
                 .build();
 
         WorkManager.getInstance(this).enqueue(periodicWorkRequest);

@@ -1,5 +1,6 @@
 package com.example.mainpage.API;
 
+import com.example.mainpage.API.Model.AllDataSendRequest;
 import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.Model.SetThresholdRequest;
@@ -7,6 +8,7 @@ import com.example.mainpage.API.Model.SetThresholdRequest;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -27,9 +29,11 @@ public interface APIservice {
             @Field("username") String username,
             @Field("password") String password
         );
-    @FormUrlEncoded
     @GET("isAuthorized")
     Call<ResponseBody> isAuthorized();
+
+    @DELETE("logOut")
+    Call<ResponseBody> loggedOut();
 
     @POST("AddSoundData")
     Call<ResponseBody> AddSoundData(@Body DataSendRequest dataSendRequest);
@@ -47,7 +51,8 @@ public interface APIservice {
     Call<ResponseBody> setSoundThreshold(@Body SetThresholdRequest setThresholdRequest);
     @GET("getSoundThreshold")
     Call<ResponseBody> getSoundThreshold();
-
+    @POST("AddData")
+    Call<ResponseBody> AddData(@Body AllDataSendRequest allDataSendRequest);
 
 
 }
