@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -15,7 +16,10 @@ import com.jjoe64.graphview.GraphView;
 //import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -78,10 +82,33 @@ public class StatActivity extends AppCompatActivity {
         VOCDataSeries = new LineGraphSeries<>();
         CO2DataSeries = new LineGraphSeries<>();
 
+        //Added ability to tap on values and get toast message
+
+        soundLevelDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series soundLevelDataSeries, DataPointInterface dataPoint) {
+                Toast.makeText(StatActivity.this, "Sound Level: "+ dataPoint.getY() + " dB", Toast.LENGTH_SHORT).show();
+            }
+        });
+        CO2DataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series CO2DataSeries, DataPointInterface dataPoint) {
+                Toast.makeText(StatActivity.this, "CO2 Level: "+ dataPoint.getY() + " ppm", Toast.LENGTH_SHORT).show();
+            }
+        });
+        VOCDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+            @Override
+            public void onTap(Series VOCDataSeries, DataPointInterface dataPoint) {
+                Toast.makeText(StatActivity.this, "VOC Level: "+ dataPoint.getY() + " ppb", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Add empty series to graphs
         soundLevelGraph.addSeries(soundLevelDataSeries);
         VOCGraph.addSeries(VOCDataSeries);
         CO2Graph.addSeries(CO2DataSeries);
+
+
 
 //        updateGraphs(generateDummyData(dataSize));
         refreshData(); // Initial data retrieval and graph update
@@ -107,6 +134,8 @@ public class StatActivity extends AppCompatActivity {
                 refreshData();
             }
         });
+
+
 
     }
 
@@ -178,6 +207,10 @@ private void refreshData() {
             // Resets the data and sets with new data to update the graph
             soundLevelDataSeries.resetData(soundLevelDataPoints);
 
+            //Added Dots to data points
+            soundLevelDataSeries.setDrawDataPoints(true);
+            soundLevelDataSeries.setDataPointsRadius(10);
+
             // Establishes minimum and max X values
             soundLevelGraph.getViewport().setMinX(0);
             soundLevelGraph.getViewport().setMaxX(soundDataList.size() - 1);
@@ -187,10 +220,13 @@ private void refreshData() {
             soundLevelGraph.getViewport().setMaxY(2000);
 
             // Allows to zoom and scroll within the graphs
-//            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
-//            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
-//            soundLevelGraph.getViewport().setScalable(true);
-//            soundLevelGraph.getViewport().setScalableY(true);
+            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
+            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
+            soundLevelGraph.getViewport().setScalable(true);
+            soundLevelGraph.getViewport().setScalableY(true);
+
+
+
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
@@ -214,6 +250,10 @@ private void refreshData() {
 
             VOCDataSeries.resetData(vocDataPoints);
 
+            //Added Dots to data point
+            VOCDataSeries.setDrawDataPoints(true);
+            VOCDataSeries.setDataPointsRadius(10);
+
             // Set X bounds for VOC graph
             VOCGraph.getViewport().setMinX(0);
             VOCGraph.getViewport().setMaxX(vocDataList.size() - 1);
@@ -223,10 +263,10 @@ private void refreshData() {
             VOCGraph.getViewport().setMaxY(2000);
 
             // Allow zoom and scroll
-//            VOCGraph.getViewport().setScrollable(true);
-//            VOCGraph.getViewport().setScrollableY(true);
-//            VOCGraph.getViewport().setScalable(true);
-//            VOCGraph.getViewport().setScalableY(true);
+            VOCGraph.getViewport().setScrollable(true);
+            VOCGraph.getViewport().setScrollableY(true);
+            VOCGraph.getViewport().setScalable(true);
+            VOCGraph.getViewport().setScalableY(true);
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
@@ -249,6 +289,11 @@ private void refreshData() {
 
             CO2DataSeries.resetData(co2DataPoints);
 
+
+            //Added Dots to data points
+            CO2DataSeries.setDrawDataPoints(true);
+            CO2DataSeries.setDataPointsRadius(10);
+
             Log.d("HardBLE",String.valueOf(co2DataList.size()));
 
             // Set X bounds for CO2 graph
@@ -260,10 +305,10 @@ private void refreshData() {
             CO2Graph.getViewport().setMaxY(9000);
 
             // Allow zoom and scroll
-//            CO2Graph.getViewport().setScrollable(true);
-//            CO2Graph.getViewport().setScrollableY(true);
-//            CO2Graph.getViewport().setScalable(true);
-//            CO2Graph.getViewport().setScalableY(true);
+            CO2Graph.getViewport().setScrollable(true);
+            CO2Graph.getViewport().setScrollableY(true);
+            CO2Graph.getViewport().setScalable(true);
+            CO2Graph.getViewport().setScalableY(true);
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
