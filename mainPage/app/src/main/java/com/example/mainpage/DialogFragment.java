@@ -57,7 +57,7 @@ public class DialogFragment extends androidx.fragment.app.DialogFragment {
 
             // Caution Level
            if (Double.parseDouble(main.getAverageSound()) >= 70 && Double.parseDouble(main.getAverageSound()) < 80 ) {
-                alertImage.setImageResource(R.drawable.yellowwarning);
+               alertImage.setImageResource(R.drawable.yellowwarning);
                 level.setText("Caution");
                message.setText("Noise above 70 dB over a prolonged period of time may start to damage your hearing.");
             }

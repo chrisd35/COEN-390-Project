@@ -30,32 +30,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/TextViewColor"
-                android:text="The following table is provided by the Government of Canada which shows us the allowed level and maximum permitted hours one can be exposed to high levels of noise at a workplace. Table 1 shows us the Noise Exposure limits of standard jurisdictions, whereas Table 2 shows us the levels at Quebec." />
+                android:text=" " />
+
+            <TextView
+                android:layout_width="398dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingStart="16dp"
+                android:text="The following table is a list of common sources of noises and their respective dB levels, which can be used as a reference to set your own dB threshold to be alerted to:  "
+                android:textColor="@color/TextViewColor" />
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="450dp"
+                android:layout_height="607dp"
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/tablephoto" />
+                app:srcCompat="@drawable/table_common_noises" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/TextViewColor"
-                android:text="Prolonged noise levels above 75-85 will cause permanent hearing damage. You should use these charts as an example and set the levels you want to be alerted to. It is recommended to wear ear protection equipment as much as possible to protect yourself." />
+                android:text=" " />
+
+            <TextView
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:gravity="start|end"
+                android:paddingStart="10dp"
+                android:text="The World Health Organization (WHO) recommends maintaning environmental noises below 70 dbA over 24 hours to prevent noise-induced hearing loss. It is also recommended that employees wear any ear protection equipment at work."
+                android:textColor="@color/TextViewColor" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:textColor="@color/TextViewColor"
-                android:text="The air around us may seem invisible, however, it is crucial to our health and safety. Increased levels of CO2 can lead to increased tiredness, headaches, eye irritations, decreased brain activity, and more. The long-term exposure according to the Government of Canada is 1000ppm. They recommend levels reach no greater than 700ppm." />
+                android:paddingStart="10dp"
+                android:gravity="start|end"
+                android:text="The air around us may seem invisible, however, it is crucial to our health and safety. The air quality can be measured by the CO2 Level (in ppm) and the VOC Levels (in ppb):"
+                android:textColor="@color/TextViewColor" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="290dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/co2_table" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingStart="10dp"
+                android:gravity="start|end"
+                android:text="Increased levels of CO2 and VOC can lead to dizziness, nausea, headaches decreased brain activity, irritation of the respiratory tract and eyes."
+                android:textColor="@color/TextViewColor" />
 
             <View
                 android:layout_width="match_parent"
