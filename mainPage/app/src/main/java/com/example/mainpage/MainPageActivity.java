@@ -501,6 +501,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
                         if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
                             makeNotification("Threshold Notification");
+                            makeNotification("Noise Alert","Noise is over "+ String.valueOf(currentThreshold)+" dB","Your current environment  exceeds the threshold of "+String.valueOf(currentThreshold)+"dB you have set. ");
                             lastNotificationTime = currentTime; // Update the last notification time
                         }
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
@@ -918,11 +919,70 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        }
 //        notificationManager.notify(0,builder.build());
 //    }
-    public void makeNotification(String message) {
+    public void makeNotification(String title,String message,String expandedText) {
         String channelID = "Channel_ID_notifications";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
         builder.setSmallIcon(R.drawable.logoleaf)
-                .setContentTitle(message)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
+        intent.putExtra("openDialog", true);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0, builder.build());
+    }
+    public void makeNotification(String title,String message) {
+        String channelID = "Channel_ID_notifications";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
+        builder.setSmallIcon(R.drawable.logoleaf)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
+        intent.putExtra("openDialog", true);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0, builder.build());
+    }
+    public void makeNotification(String title) {
+        String channelID = "Channel_ID_notifications";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
+        builder.setSmallIcon(R.drawable.logoleaf)
+                .setContentTitle(title)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
