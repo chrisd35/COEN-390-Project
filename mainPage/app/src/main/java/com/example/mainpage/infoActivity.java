@@ -1,5 +1,6 @@
 package com.example.mainpage;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -16,6 +17,10 @@ public class infoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
 
         toolbar = findViewById(R.id.infoPageToolbar);
+
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

@@ -114,6 +114,7 @@ public class loginActivity extends AppCompatActivity {
     public void gotoMainPageActivity(){
         Intent intent = new Intent(this, MainPageActivity.class);
         startActivity(intent);
+
     }
     @Override
     public boolean onSupportNavigateUp() {

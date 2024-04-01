@@ -2,7 +2,7 @@ package com.example.mainpage;
 
 import android.util.Log;
 
-import com.example.mainpage.API.Model.SoundRetrieveData;
+import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.RetrofitClient;
 
 import org.json.JSONArray;
@@ -29,7 +29,7 @@ public class DataRetrieveWorker {
         Call<ResponseBody> call = RetrofitClient
                 .getInstance()
                 .getApi()
-                .retrieveSoundData(new SoundRetrieveData(date));
+                .retrieveSoundData(new RetrieveData(date));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -66,7 +66,7 @@ public class DataRetrieveWorker {
         Call<ResponseBody> call = RetrofitClient
                 .getInstance()
                 .getApi()
-                .retrieveVOCData(new SoundRetrieveData(date));
+                .retrieveVOCData(new RetrieveData(date));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -103,7 +103,7 @@ public class DataRetrieveWorker {
         Call<ResponseBody> call = RetrofitClient
                 .getInstance()
                 .getApi()
-                .retrieveCO2Data(new SoundRetrieveData(date));
+                .retrieveCO2Data(new RetrieveData(date));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

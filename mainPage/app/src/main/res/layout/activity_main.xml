@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DDC4E3DF"
+    android:background="@color/background"
     tools:context=".MainActivity">
 
     <Button
@@ -12,9 +12,9 @@
         android:layout_width="253dp"
         android:layout_height="70dp"
         android:layout_marginBottom="248dp"
-        android:backgroundTint="#4C7F7A"
+        android:backgroundTint="@color/buttonTint"
         android:text="Create an account"
-        android:textColor="#DDEDEC"
+        android:textColor="@color/buttonTextColor"
         android:textSize="20sp"
         app:cornerRadius="10sp"
         app:iconPadding="2dp"
@@ -26,9 +26,9 @@
         android:id="@+id/goToLoginButton"
         android:layout_width="253dp"
         android:layout_height="70dp"
-        android:backgroundTint="#6FA09B"
+        android:backgroundTint="@color/buttonTint2"
         android:text="Login"
-        android:textColor="#DDEDEC"
+        android:textColor="@color/buttonTextColor"
         android:textSize="20sp"
         app:cornerRadius="10sp"
         app:iconPadding="2dp"
@@ -49,23 +49,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logo" />
 
-    <Button
-        android:id="@+id/goToHomePageButton"
-        android:layout_width="253dp"
-        android:layout_height="70dp"
-        android:layout_marginBottom="36dp"
-        android:backgroundTint="#3D6F86"
-        android:text="Go To Home Page"
-        android:textColor="#DDEDEC"
-        android:textSize="20sp"
-        android:visibility="gone"
-        app:cornerRadius="10sp"
-        app:iconPadding="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/goToSignUpButton"
-        app:layout_constraintVertical_bias="0.662" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

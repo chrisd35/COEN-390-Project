@@ -1,8 +1,8 @@
 package com.example.mainpage.API.Model;
 
-public class SoundRetrieveData {
+public class RetrieveData {
     String date;
-    public SoundRetrieveData(String date) {
+    public RetrieveData(String date) {
         this.date = date;
     }
 

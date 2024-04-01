@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DDC4E3DF"
+    android:background="@color/background"
     tools:context=".SettingsActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/settingsPageToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#4C7F7A"
+        android:background="@color/ToolbarBackgroundColor"
+        app:titleTextColor="@color/ToolbarTextColor"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,6 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Please select a dB value: "
+        android:textColor="@color/TextViewColor"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/spinner_settings"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,9 +49,9 @@
         android:id="@+id/saveSettingsbutton"
         android:layout_width="253dp"
         android:layout_height="70dp"
-        android:backgroundTint="#4C7F7A"
+        android:backgroundTint="@color/buttonTint"
         android:text="Save Settings "
-        android:textColor="#DDEDEC"
+        android:textColor="@color/buttonTextColor"
         android:textSize="20sp"
         app:cornerRadius="10sp"
         app:iconPadding="2dp"
@@ -63,7 +65,7 @@
         android:id="@+id/infoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#4C7F7A"
+        android:backgroundTint="@color/buttonTint"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -71,6 +73,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.991"
         app:srcCompat="@android:drawable/ic_menu_info_details" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -14,8 +15,9 @@ import androidx.work.WorkManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -32,6 +34,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -41,10 +45,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.mainpage.API.DataCallback;
-import com.example.mainpage.API.Model.SoundDataSendRequest;
-import com.example.mainpage.API.Model.SoundRetrieveData;
+import com.example.mainpage.API.Model.DataSendRequest;
+import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.RetrofitClient;
 import com.example.mainpage.API.SendDataCallback;
+import com.example.mainpage.API.ThresholdData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,8 +62,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +76,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
     public static String averageSound;
 
+    private long lastNotificationTime = 0;
+//    private static final long NOTIFICATION_DELAY = 60000;
+    private static final long NOTIFICATION_DELAY = 900000;
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
     protected ImageView Stats;
@@ -84,7 +90,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_FINE_LOCATION = 2;
     private static final int PERMISSION_BLUETOOTH_SCAN = 3;
-    private static final int PERMISSION_BLUETOOTH_CONNECT = 2;
+    private static final int PERMISSION_BLUETOOTH_CONNECT = 4;
+    private static final int PERMISSION_POST_NOTIFICATIONS = 5;
+
     private ActivityResultLauncher<Intent> enableBluetoothLauncher;
     private boolean shouldContinueReading = true;
     private String Tag = "HardBLE";
@@ -98,21 +106,24 @@ public class MainPageActivity<T> extends AppCompatActivity {
     static ArrayList<Integer> Co2data = new ArrayList<Integer>();
     static ArrayList<Integer> Sounddata = new ArrayList<Integer>();
    static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
-
+    Button SoundDataCollect;
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
+    private ThresholdData thresholdData;
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(Tag,"OnCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_page);
         Stats = findViewById(R.id.imageView3);
         Settings = findViewById(R.id.imageButton);
 
-        Button SoundDataCollect = findViewById(R.id.SoundButton);
+        SoundDataCollect= findViewById(R.id.SoundButton);
         Button Logout = findViewById(R.id.LogoutButton);
-
+        thresholdData = new ThresholdData(this);
+        thresholdData.fetchAndSetThreshold();
         Logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,6 +159,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         });
 
         schedulePeriodicWorkWithInitialDelay();
+
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
 //            @Override
 //            public void onDataLoaded(List<Double> data) {
@@ -454,6 +466,16 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     //store the value into to the proper array
                     if (characteristic.getUuid().toString().equals(CharacteristicOneUUID)) {
                         Co2data.add(intValue);
+                        //put it in to the sounddata characteristics
+                        long currentTime = System.currentTimeMillis();
+                        int currentThreshold = thresholdData.getSavedThreshold();
+                        boolean thresholdDataexist=thresholdData.ThresholdExist();
+                        Log.d(Tag,"Threshold"+String.valueOf(currentThreshold));
+                        Log.d(Tag,"DataExist"+String.valueOf(thresholdDataexist));
+                        if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
+                            makeNotification("Threshold Notification");
+                            lastNotificationTime = currentTime; // Update the last notification time
+                        }
                     } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
                         Sounddata.add(intValue);
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
@@ -492,8 +514,11 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT},
                     PERMISSION_BLUETOOTH_CONNECT);
+        } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    PERMISSION_POST_NOTIFICATIONS);
         }
-
     }
 
     private void enablebluetooth() {
@@ -597,7 +622,16 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //                showRationaleDialog("Bluetooth connect permission is necessary for connecting to Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_CONNECT);
             }
         }
-    }
+        else if (requestCode == PERMISSION_POST_NOTIFICATIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(Tag, "Permission POST_NOTIFICATIONS Granted");
+                // You may want to check or continue some action that requires this permission
+            } else {
+                Log.d(Tag, "Permission POST_NOTIFICATIONS DENIED");
+                // showRationaleDialog("Posting notifications permission is necessary. Please grant the permission to continue.", PERMISSION_POST_NOTIFICATIONS);
+            }
+
+    }}
     public void stopReading() {
         shouldContinueReading = false;
         handler.removeCallbacksAndMessages(null); // Remove all callbacks and messages
@@ -650,7 +684,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .retrieveSoundData(new SoundRetrieveData(date));
+                .retrieveSoundData(new RetrieveData(date));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -694,7 +728,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .AddSoundData(new SoundDataSendRequest(data));
+                .AddSoundData(new DataSendRequest(data));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -720,7 +754,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Call<ResponseBody>call =RetrofitClient
                 .getInstance()
                 .getApi()
-                .AddSoundData(new SoundDataSendRequest(data));
+                .AddSoundData(new DataSendRequest(data));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -784,6 +818,17 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
 
     }
+    @Override
+    protected void onNewIntent(Intent intent) {
+
+        super.onNewIntent(intent);
+        Log.d(Tag,"NEW ITNENT4343");
+        setIntent(intent);  // Important to ensure getIntent() returns the latest intent
+        if (intent.getBooleanExtra("openDialog", false)) {
+    SoundDataCollect.performClick();
+           Log.d(Tag,"NEW ITNENT");
+        }
+    }
     public void gotoMainActivity(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
@@ -801,7 +846,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
     public void gotoLogout(){
         Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+
     }
     private void showToast(String message) {
         if (currentToast != null) {
@@ -810,11 +857,70 @@ public class MainPageActivity<T> extends AppCompatActivity {
         currentToast = Toast.makeText(MainPageActivity.this, message, Toast.LENGTH_SHORT);
         currentToast.show();
     }
+//    public void newNotification(String message){
+//        String channelID="Channel_ID_notifications";
+//        NotificationCompat.Builder builder=
+//                new NotificationCompat.Builder(getApplicationContext(),channelID);
+//        builder.setSmallIcon(R.drawable.logoleaf)
+//                .setContentTitle(message)
+//                .setAutoCancel(true)
+//                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+//        Intent intent= new Intent(getApplicationContext(), MainPageActivity.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        intent.putExtra("openDialog",true);
+//        PendingIntent pendingIntent= PendingIntent.getActivity(getApplicationContext(),0,intent,PendingIntent.FLAG_MUTABLE);
+//        builder.setContentIntent(pendingIntent);
+//        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel notificationChannel=notificationManager.getNotificationChannel(channelID);
+//            if(notificationChannel==null){
+//                int importance=NotificationManager.IMPORTANCE_HIGH;
+//                notificationChannel=new NotificationChannel(channelID,"Some Description",importance);
+//                notificationChannel.setLightColor(Color.GREEN);
+//                notificationChannel.enableVibration(true);
+//                notificationManager.createNotificationChannel(notificationChannel);
+//
+//            }
+//        }
+//        notificationManager.notify(0,builder.build());
+//    }
+    public void makeNotification(String message) {
+        String channelID = "Channel_ID_notifications";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
+        builder.setSmallIcon(R.drawable.logoleaf)
+                .setContentTitle(message)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
+        intent.putExtra("openDialog", true);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
+        }
+        notificationManager.notify(0, builder.build());
+    }
+
 
     public void setAverageC02(String averageCO2){
         this.averageCO2 = averageCO2;
     }
-
+    @Override
+    public void onBackPressed() {
+        return;
+    }
     public void setAverageVOC(String averageVOC){
         this.averageVOC = averageVOC;
     }

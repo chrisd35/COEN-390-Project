@@ -279,4 +279,44 @@ exports.AddCO2Data = async (req, res, next) => {
         console.error("Error updating CO2 Data:", error);
         return res.json({ message: "Error updating VOC Data", error: error.message });
     }
+
+
 };
+exports.setSoundThreshold=async (req,res,next)=>{
+    try{
+    const {thresholdValue } = req.body;
+    const user = await Account.findOne({ id: userId });
+        if (!user) {
+            return res.json({ message: "User not found" });
+        }
+        else{
+        user.SoundThreshold=thresholdValue;
+        await user.save()
+        return res.json({ isDataStored:true, message: `Threshold has been set to ${thresholdValue} dB` })
+        }
+    }
+    catch(error){
+        return res.json({isDataStored:false, message: "Error storing Threshold Data", error: error.message });
+    }
+    
+}
+exports.getSoundThreshold=async (req,res,next)=>{
+    try{
+    
+    const user = await Account.findOne({ id: userId });
+        if (!user) {
+            return res.json({ message: "User not found" });
+        }
+        else if(user.SoundThreshold){
+        return res.json({dataExist:true, data:user.SoundThreshold })
+        }
+        else if(!user.SoundThreshold){
+            return res.json({dataExist:false, data:60 })
+            }
+       
+    }
+    catch(error){
+        return res.json({isDataRetrieved:false, message: "Error storing Threshold Data", error: error.message });
+    }
+    
+}

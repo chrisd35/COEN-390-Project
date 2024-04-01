@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DDC4E3DF"
+    android:background="@color/background"
+    android:statusBarColor="@color/background"
     tools:context=".DialogFragment">
 
 
@@ -30,10 +31,11 @@
 
         <TextView
             android:id="@+id/levelTextView"
-            android:layout_width="114dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="200dp"
             android:text="Level 3"
+            android:textColor="@color/TextViewColor"
             android:textAlignment="center"
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -48,6 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="250dp"
             android:textAlignment="center"
+            android:textColor="@color/TextViewColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -59,23 +62,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="320dp"
-            android:text="DAMAGE TO NOSE DUE TO STICKY BREATH"
             android:textAlignment="center"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/TextViewColor"
+            app:layout_constraintBottom_toTopOf="@+id/dismissButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.288" />
+            app:layout_constraintVertical_bias="0.205" />
 
         <Button
             android:id="@+id/dismissButton"
             android:layout_width="216dp"
             android:layout_height="60dp"
             android:layout_marginTop="400dp"
-            android:backgroundTint="#6FA09B"
+            android:backgroundTint="@color/buttonTint"
             android:text="Dismiss"
-            android:textColor="#DDEDEC"
+            android:textColor="@color/buttonTextColor"
             app:cornerRadius="10sp"
             app:iconPadding="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -90,11 +93,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
+            android:textColor="@color/TextViewColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/CO2TextView"
             app:layout_constraintVertical_bias="0.05" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
