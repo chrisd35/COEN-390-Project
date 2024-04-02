@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.mainpage.API.ThresholdData;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 //import com.jjoe64.graphview.series.BarGraphSeries;
@@ -47,6 +48,13 @@ public class StatActivity extends AppCompatActivity {
     private GraphView CO2Graph;
 
     private int dataSize = 0;
+
+    ThresholdData thresholdData;
+
+    // Define class-level variables to store threshold values
+    private int soundThresholdValue;
+    private int vocThresholdValue;
+    private int co2ThresholdValue;
 
 
     @Override
@@ -116,6 +124,8 @@ public class StatActivity extends AppCompatActivity {
         VOCGraph.addSeries(VOCDataSeries);
         CO2Graph.addSeries(CO2DataSeries);
 
+        // Instantiate ThresholdData
+        thresholdData = new ThresholdData(this);
 
 
 //        updateGraphs(generateDummyData(dataSize));
@@ -154,7 +164,6 @@ public class StatActivity extends AppCompatActivity {
             public void onDataLoaded(ArrayList<Double> soundDataList) {
                 // Log the data size of sound dataset
                 Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
-                Log.d("HardBLE",String.valueOf(soundDataList.size()));
 
                 // Update sound level graph with the retrieved sound data
                 updateSoundLevelGraph(soundDataList);
@@ -162,13 +171,15 @@ public class StatActivity extends AppCompatActivity {
                 // Update dataSize
                 dataSize = soundDataList.size();
 
+                // Store sound threshold value
+                soundThresholdValue = thresholdData.getSavedThreshold();
+
                 // Call method to retrieve VOC data
                 DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
                     @Override
                     public void onDataLoaded(ArrayList<Double> vocDataList) {
                         // Log the data size of VOC dataset
                         Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
-                        Log.d("HardBLE",String.valueOf(vocDataList.size()));
 
                         // Update VOC graph with the retrieved VOC data
                         updateVOCGraph(vocDataList);
@@ -176,13 +187,15 @@ public class StatActivity extends AppCompatActivity {
                         // Update dataSize
                         dataSize = Math.max(dataSize, vocDataList.size());
 
+                        // Store VOC threshold value
+                        vocThresholdValue = thresholdData.getSavedThreshold();
+
                         // Call method to retrieve CO2 data
                         DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
                             @Override
                             public void onDataLoaded(ArrayList<Double> co2DataList) {
                                 // Log the data size of CO2 dataset
                                 Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
-                                Log.d("HardBLE",String.valueOf(co2DataList.size()));
 
                                 // Update CO2 graph with the retrieved CO2 data
                                 updateCO2Graph(co2DataList);
@@ -190,8 +203,11 @@ public class StatActivity extends AppCompatActivity {
                                 // Update dataSize
                                 dataSize = Math.max(dataSize, co2DataList.size());
 
+                                // Store CO2 threshold value
+                                co2ThresholdValue = thresholdData.getSavedThreshold();
+
                                 // Create threshold lines after updating dataSize
-                                createThresholdLines();
+                                createThresholdLines(soundThresholdValue,vocThresholdValue,co2ThresholdValue);
                             }
 
                             @Override
@@ -215,48 +231,37 @@ public class StatActivity extends AppCompatActivity {
         });
     }
 
-    private void createThresholdLines() {
+    private void createThresholdLines(int soundThresholdValue, int vocThresholdValue, int co2ThresholdValue) {
         // Define threshold values for each level graphs
-        int soundThresholdValue = 3000;
-        int vocThresholdValue = 1000;
-        int co2ThresholdValue = 2000;
+//        int soundThresholdValue = 3000;
+//        int vocThresholdValue = 1000;
+//        int co2ThresholdValue = 2000;
 
         // Define the color used for the threshold lines
         int color = Color.RED;
 
         // Establish threshold line for sound level graph
-        LineGraphSeries<DataPoint> thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
+        thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, soundThresholdValue),
                 new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
         });
-
-
-        // Make the threshold line dashed and color red
         setDashedLine(thresholdSoundLine, color);
+        soundLevelGraph.addSeries(thresholdSoundLine);
 
         // Establish threshold line for VOC graph
-        LineGraphSeries<DataPoint> thresholdVOCLine = new LineGraphSeries<>(new DataPoint[]{
+        thresholdVOCLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, vocThresholdValue),
                 new DataPoint(dataSize - 1, vocThresholdValue) // Adjust dataSize - 1 according to your data size
         });
-
-
-        // Make the threshold line dashed and color red
         setDashedLine(thresholdVOCLine, color);
+        VOCGraph.addSeries(thresholdVOCLine);
 
         // Establish threshold line for CO2 graph
-        LineGraphSeries<DataPoint> thresholdCO2Line = new LineGraphSeries<>(new DataPoint[]{
+        thresholdCO2Line = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, co2ThresholdValue),
                 new DataPoint(dataSize - 1, co2ThresholdValue) // Adjust dataSize - 1 according to your data size
         });
-
-
-        // Make the threshold line dashed
         setDashedLine(thresholdCO2Line, color);
-
-        // Add threshold lines to the respective graphs
-        soundLevelGraph.addSeries(thresholdSoundLine);
-        VOCGraph.addSeries(thresholdVOCLine);
         CO2Graph.addSeries(thresholdCO2Line);
     }
 
