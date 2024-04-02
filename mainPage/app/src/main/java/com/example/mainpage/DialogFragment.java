@@ -63,7 +63,7 @@ public class DialogFragment extends androidx.fragment.app.DialogFragment {
             }
            // Red Level 1
             else if (Double.parseDouble(main.getAverageSound()) >= 80 && Double.parseDouble(main.getAverageSound()) < 85 ) {
-                alertImage.setImageResource(R.drawable.redwarning);
+               alertImage.setImageResource(R.drawable.redwarning);
                level.setText("Level 1");
                 message.setText("Damage to hearing possible after 2 hours of exposure");
             }

@@ -2,11 +2,15 @@ package com.example.mainpage;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
 
 import androidx.appcompat.app.ActionBar;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
@@ -16,33 +20,31 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.mainpage.API.ThresholdData;
-import com.example.mainpage.API.RetrofitClient;
-
-import org.json.JSONObject;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SettingsActivity extends AppCompatActivity {
 
     protected Toolbar toolbar;
-    protected ImageButton infoButton;
+    protected ImageButton infoButton, toggleMode;
     protected Spinner spinnerDBLevels;
-protected Button saveSettingButton;
-protected Integer ThresholdValue;
+    protected Button saveSettingButton;
+    protected Integer ThresholdValue;
     private ThresholdData thresholdData;
     private Integer defaultValue = 60;
+
+    public boolean isDarkModeEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-try {
+
+        toggleMode = findViewById(R.id.toggleDark);
+        int defaultNightMode = AppCompatDelegate.getDefaultNightMode();
+        setIconButton(defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES);
+
+        try {
     toolbar = findViewById(R.id.settingsPageToolbar);
     spinnerDBLevels = findViewById(R.id.spinner_settings);
     infoButton = findViewById(R.id.infoButton);
@@ -96,12 +98,22 @@ try {
 
         }
     });
+
+
+    toggleMode.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            toggleDarkMode();
+        }
+    });
+
+
+
 }catch (Exception e){
     Log.d("settingView",e.getMessage());
 }
 
     }
-
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -117,4 +129,35 @@ try {
        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
+
+    public void toggleDarkMode() {
+        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            isDarkModeEnabled = false;
+            setIconButton(isDarkModeEnabled);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            isDarkModeEnabled = true;
+            setIconButton(isDarkModeEnabled);
+        }
+
+        SharedPreferences sharedPref = getSharedPreferences("my_settings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean("dark_mode_enabled", isDarkModeEnabled);
+        editor.apply();
+    }
+
+    public void setIconButton(boolean isOn) {
+        if (isOn) {
+            toggleMode.setImageResource(R.drawable.moon);
+        } else {
+            toggleMode.setImageResource(R.drawable.sun);
+        }
+    }
+
+
+
+
+
+
 }
