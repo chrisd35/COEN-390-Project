@@ -40,8 +40,11 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        toggleMode = findViewById(R.id.toggleDark);
+        int defaultNightMode = AppCompatDelegate.getDefaultNightMode();
+        setIconButton(defaultNightMode == AppCompatDelegate.MODE_NIGHT_YES);
 
-try {
+        try {
     toolbar = findViewById(R.id.settingsPageToolbar);
     spinnerDBLevels = findViewById(R.id.spinner_settings);
     infoButton = findViewById(R.id.infoButton);
@@ -96,13 +99,14 @@ try {
         }
     });
 
-    toggleMode = findViewById(R.id.toggleDark);
+
     toggleMode.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             toggleDarkMode();
         }
     });
+
 
 
 }catch (Exception e){
@@ -131,29 +135,26 @@ try {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             isDarkModeEnabled = false;
             setIconButton(isDarkModeEnabled);
-            recreate();
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             isDarkModeEnabled = true;
             setIconButton(isDarkModeEnabled);
-            recreate();
         }
 
         SharedPreferences sharedPref = getSharedPreferences("my_settings", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean("dark_mode_enabled", isDarkModeEnabled);
         editor.apply();
-
-        recreate();
     }
 
     public void setIconButton(boolean isOn) {
         if (isOn) {
-            toggleMode.setImageResource(R.drawable.danger);
+            toggleMode.setImageResource(R.drawable.moon);
         } else {
-            toggleMode.setImageResource(R.drawable.redwarning);
+            toggleMode.setImageResource(R.drawable.sun);
         }
     }
+
 
 
 
