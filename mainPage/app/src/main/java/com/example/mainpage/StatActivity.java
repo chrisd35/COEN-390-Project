@@ -3,6 +3,9 @@ package com.example.mainpage;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +27,8 @@ import com.jjoe64.graphview.series.Series;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class StatActivity extends AppCompatActivity {
@@ -33,12 +38,15 @@ public class StatActivity extends AppCompatActivity {
     private LineGraphSeries<DataPoint> soundLevelDataSeries;
     private LineGraphSeries<DataPoint> VOCDataSeries;
     private LineGraphSeries<DataPoint> CO2DataSeries;
+    private LineGraphSeries<DataPoint> thresholdSoundLine;
+    private LineGraphSeries<DataPoint> thresholdVOCLine;
+    private LineGraphSeries<DataPoint> thresholdCO2Line;
 
     private GraphView soundLevelGraph;
     private GraphView VOCGraph;
     private GraphView CO2Graph;
 
-    private int dataSize = 100;
+    private int dataSize = 0;
 
 
     @Override
@@ -139,64 +147,136 @@ public class StatActivity extends AppCompatActivity {
 
     }
 
-private void refreshData() {
-    // Call method to retrieve sound data
-    DataRetrieveWorker.retrieveSoundDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
-        @Override
-        public void onDataLoaded(ArrayList<Double> soundDataList) {
-            // Log the data size of sound dataset
-            Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
-            Log.d("HardBLE",String.valueOf(soundDataList.size()));
+    private void refreshData() {
+        // Call method to retrieve sound data
+        DataRetrieveWorker.retrieveSoundDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+            @Override
+            public void onDataLoaded(ArrayList<Double> soundDataList) {
+                // Log the data size of sound dataset
+                Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
+                Log.d("HardBLE",String.valueOf(soundDataList.size()));
 
-            // Update sound level graph with the retrieved sound data
-            updateSoundLevelGraph(soundDataList);
+                // Update sound level graph with the retrieved sound data
+                updateSoundLevelGraph(soundDataList);
 
-            // Call method to retrieve VOC data
-            DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
-                @Override
-                public void onDataLoaded(ArrayList<Double> vocDataList) {
-                    // Log the data size of VOC dataset
-                    Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
-                    Log.d("HardBLE",String.valueOf(vocDataList.size()));
+                // Update dataSize
+                dataSize = soundDataList.size();
 
-                    // Update VOC graph with the retrieved VOC data
-                    updateVOCGraph(vocDataList);
+                // Call method to retrieve VOC data
+                DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                    @Override
+                    public void onDataLoaded(ArrayList<Double> vocDataList) {
+                        // Log the data size of VOC dataset
+                        Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
+                        Log.d("HardBLE",String.valueOf(vocDataList.size()));
+
+                        // Update VOC graph with the retrieved VOC data
+                        updateVOCGraph(vocDataList);
+
+                        // Update dataSize
+                        dataSize = Math.max(dataSize, vocDataList.size());
+
+                        // Call method to retrieve CO2 data
+                        DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                            @Override
+                            public void onDataLoaded(ArrayList<Double> co2DataList) {
+                                // Log the data size of CO2 dataset
+                                Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
+                                Log.d("HardBLE",String.valueOf(co2DataList.size()));
+
+                                // Update CO2 graph with the retrieved CO2 data
+                                updateCO2Graph(co2DataList);
+
+                                // Update dataSize
+                                dataSize = Math.max(dataSize, co2DataList.size());
+
+                                // Create threshold lines after updating dataSize
+                                createThresholdLines();
+                            }
+
+                            @Override
+                            public void onFailure(String errorMessage) {
+                                // Handle CO2 data retrieval failure
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        // Handle VOC data retrieval failure
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                // Handle sound data retrieval failure
+            }
+        });
+    }
+
+    private void createThresholdLines() {
+        // Define threshold values for each level graphs
+        int soundThresholdValue = 3000;
+        int vocThresholdValue = 1000;
+        int co2ThresholdValue = 2000;
+
+        // Define the color used for the threshold lines
+        int color = Color.RED;
+
+        // Establish threshold line for sound level graph
+        LineGraphSeries<DataPoint> thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, soundThresholdValue),
+                new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
+        });
 
 
-                    // Call method to retrieve CO2 data
-                    DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
-                        @Override
-                        public void onDataLoaded(ArrayList<Double> co2DataList) {
-                            // Log the data size of CO2 dataset
-                            Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
-                            Log.d("HardBLE",String.valueOf(co2DataList.size()));
+        // Make the threshold line dashed and color red
+        setDashedLine(thresholdSoundLine, color);
 
-                            // Update CO2 graph with the retrieved CO2 data
-                            updateCO2Graph(co2DataList);
-                        }
+        // Establish threshold line for VOC graph
+        LineGraphSeries<DataPoint> thresholdVOCLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, vocThresholdValue),
+                new DataPoint(dataSize - 1, vocThresholdValue) // Adjust dataSize - 1 according to your data size
+        });
 
-                        @Override
-                        public void onFailure(String errorMessage) {
-                            // Handle CO2 data retrieval failure
-                        }
-                    });
-                }
 
-                @Override
-                public void onFailure(String errorMessage) {
-                    // Handle VOC data retrieval failure
-                }
-            });
-        }
+        // Make the threshold line dashed and color red
+        setDashedLine(thresholdVOCLine, color);
 
-        @Override
-        public void onFailure(String errorMessage) {
-            // Handle sound data retrieval failure
-        }
-    });
-}
+        // Establish threshold line for CO2 graph
+        LineGraphSeries<DataPoint> thresholdCO2Line = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, co2ThresholdValue),
+                new DataPoint(dataSize - 1, co2ThresholdValue) // Adjust dataSize - 1 according to your data size
+        });
+
+
+        // Make the threshold line dashed
+        setDashedLine(thresholdCO2Line, color);
+
+        // Add threshold lines to the respective graphs
+        soundLevelGraph.addSeries(thresholdSoundLine);
+        VOCGraph.addSeries(thresholdVOCLine);
+        CO2Graph.addSeries(thresholdCO2Line);
+    }
+
+    private void setDashedLine(LineGraphSeries<DataPoint> series, int color) {
+        series.setDrawAsPath(true);
+        series.setAnimated(false);
+        series.setDrawDataPoints(false);
+        series.setThickness(5);
+        series.setCustomPaint(new Paint(Paint.ANTI_ALIAS_FLAG) {{
+            setStyle(Paint.Style.STROKE);
+            setPathEffect(new DashPathEffect(new float[]{10, 20}, 0)); // Adjust the array to change dash pattern
+            setColor(color); // Set the color of the line
+        }});
+    }
+
     private void updateSoundLevelGraph(ArrayList<Double> soundDataList) {
         try {
+//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
+//            Collections.sort(soundDataList);
+
             DataPoint[] soundLevelDataPoints = new DataPoint[soundDataList.size()];
 
             for (int i = 0; i < soundDataList.size(); i++) {
@@ -230,8 +310,10 @@ private void refreshData() {
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
-
             glrSound.setPadding(128); // should allow for 5 digits to fit on screen
+
+            // Adds a sound threshold line on the graph
+            soundLevelGraph.addSeries(thresholdSoundLine);
 
 
 
@@ -243,6 +325,9 @@ private void refreshData() {
 
     private void updateVOCGraph(ArrayList<Double> vocDataList) {
         try {
+//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
+//            Collections.sort(vocDataList);
+
             DataPoint[] vocDataPoints = new DataPoint[vocDataList.size()];
 
             for (int i = 0; i < vocDataList.size(); i++) {
@@ -271,8 +356,10 @@ private void refreshData() {
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
-
             glrVOC.setPadding(128); // should allow for 5 digits to fit on screen
+
+            // Adds a VOC threshold line on the graph
+            VOCGraph.addSeries(thresholdVOCLine);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -281,6 +368,9 @@ private void refreshData() {
 
     private void updateCO2Graph(ArrayList<Double> co2DataList) {
         try {
+//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
+//            Collections.sort(co2DataList);
+
             DataPoint[] co2DataPoints = new DataPoint[co2DataList.size()];
 
             for (int i = 0; i < co2DataList.size(); i++) {
@@ -313,8 +403,10 @@ private void refreshData() {
 
             // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
-
             glrCO2.setPadding(128); // should allow for 5 digits to fit on screen
+
+            // Adds a CO2 threshold line on the graph
+            CO2Graph.addSeries(thresholdCO2Line);
 
 
         } catch (Exception e) {
