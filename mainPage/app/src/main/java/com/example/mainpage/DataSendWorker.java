@@ -6,11 +6,13 @@ import androidx.work.WorkerParameters;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.mainpage.API.Model.AccessTime;
 import com.example.mainpage.API.Model.AllDataSendRequest;
 import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.RetrofitClient;
 
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import retrofit2.Response;
 
 public class DataSendWorker extends Worker {
     private String TAG = "HardBLE";
+
     public DataSendWorker(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
@@ -31,17 +34,23 @@ public class DataSendWorker extends Worker {
         ArrayList<Integer> soundDataToSend = new ArrayList<>(MainPageActivity.Sounddata);
         ArrayList<Integer> vocDataToSend = new ArrayList<>(MainPageActivity.VOCdata);
         ArrayList<Integer> co2DataToSend = new ArrayList<>(MainPageActivity.Co2data);
+        ArrayList<AccessTime> soundTimeDataToSend = new ArrayList<>(MainPageActivity.SounddataTime);
+        ArrayList<AccessTime> vocTimeDataToSend = new ArrayList<>(MainPageActivity.VOCdataTIme);
+        ArrayList<AccessTime> co2TimeDataToSend = new ArrayList<>(MainPageActivity.Co2dataTime);
 
         // Send all data and clear if successful
-        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend)) {
+        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend,soundTimeDataToSend,vocTimeDataToSend,co2TimeDataToSend)) {
             synchronized (MainPageActivity.Sounddata) {
                 MainPageActivity.Sounddata.clear();
+                MainPageActivity.SounddataTime.clear();
             }
             synchronized (MainPageActivity.VOCdata) {
                 MainPageActivity.VOCdata.clear();
+                MainPageActivity.VOCdataTIme.clear();
             }
             synchronized (MainPageActivity.Co2data) {
                 MainPageActivity.Co2data.clear();
+                MainPageActivity.Co2dataTime.clear();
             }
             Log.d(TAG, "All data sent and cleared successfully.");
             return Result.success();
@@ -77,9 +86,9 @@ public class DataSendWorker extends Worker {
 //    }
 
 
-    private boolean sendAlldata(ArrayList<Integer> sound, ArrayList<Integer> voc, ArrayList<Integer> co2) {
+    private boolean sendAlldata(ArrayList<Integer> sound, ArrayList<Integer> voc, ArrayList<Integer> co2,ArrayList<AccessTime> soundTime, ArrayList<AccessTime> vocTime, ArrayList<AccessTime> co2Time) {
         RetrofitClient client = RetrofitClient.getInstance();
-        Call<ResponseBody> call = client.getApi().AddData(new AllDataSendRequest(sound, voc, co2));
+        Call<ResponseBody> call = client.getApi().AddData(new AllDataSendRequest(sound, voc, co2,soundTime,vocTime,co2Time));
 
         try {
             Response<ResponseBody> response = call.execute(); // Execute the call synchronously

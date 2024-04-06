@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const DataController = require('../controllers/DataController');
 
 router.post("/signup",authController.signup)
 router.post("/login",authController.login)
@@ -14,6 +15,9 @@ router.post("/retrieveCO2Data",authController.getCO2Data)
 router.post("/retrieveVOCData",authController.getVOCData)
 router.post("/setSoundThreshold",authController.setSoundThreshold)
 router.get("/getSoundThreshold",authController.getSoundThreshold)
+//erase
 router.post("/addData",authController.addData)
+// router.post("/addDataD",DataController.addData)
+router.get("/getAllDates",authController.getDates)
 
 module.exports=router;

@@ -5,21 +5,28 @@ const moment = require('moment');
 const passport = require('passport');
 const saltRounds = 10;
 let userId;
-// let userId="49ba77e3-4232-4d7d-8c14-8032f20d1a33";
+
 let authenticationcheck;
 exports.signup = async (req, res) => {
     const UserAccount = await Account.findOne({ username: req.body.username }).exec()
-
     if (!UserAccount) {
         const hashedPass = await bcrypt.hash(req.body.password, saltRounds)
 
-        const newUser = Account(
-            {
-                id: uuidv4(),
-                username: req.body.username,
-                password: hashedPass,
-            }
-        )
+        const newUser = new Account({
+            id: uuidv4(),
+            username: req.body.username,
+            password: hashedPass,
+            Data: [{
+                date: moment().format("YYYY-MM-DD"), // Use current date or another default date
+                CO2: [],
+                VOC: [],
+                SoundLevel: [],
+                CO2AccessTime: [],
+                VOCAccessTime: [],
+                SoundAccessTime: []
+            }],
+            SoundThreshold: 0 // or another default value
+        });
 
         const userInfo = await newUser.save();
         console.log(userInfo)
@@ -110,7 +117,8 @@ exports.getSoundData=async(req,res,next)=>{
             // If an entry exists for the requested date, return the values
             return res.json({ 
                 message: "Sound data retrieved successfully",
-                data: DataEntry.SoundLevel
+                data: DataEntry.SoundLevel,
+                DataAccessTime:DataEntry.SoundAccessTime
             });
         } else {
             // If no entry for the requested date, return a message indicating no data was found
@@ -206,7 +214,8 @@ exports.getVOCData=async(req,res,next)=>{
             // If an entry exists for the requested date, return the values
             return res.json({ 
                 message: "VOC data retrieved successfully",
-                data: DataEntry.VOC
+                data: DataEntry.VOC,
+                DataAccessTime:DataEntry.VOCAccessTime
             });
         } else {
             // If no entry for the requested date, return a message indicating no data was found
@@ -239,7 +248,8 @@ exports.getCO2Data=async(req,res,next)=>{
             // If an entry exists for the requested date, return the values
             return res.json({ 
                 message: "CO2 data retrieved successfully",
-                data: DataEntry.CO2
+                data: DataEntry.CO2,
+                DataAccessTime:DataEntry.CO2AccessTime
             });
         } else {
             // If no entry for the requested date, return a message indicating no data was found
@@ -252,6 +262,42 @@ exports.getCO2Data=async(req,res,next)=>{
         return res.status(500).json({ message: "Error retrieving CO2 data", error: error.message });
     }
 }
+
+// exports.getCO2Data=async(req,res,next)=>{
+//     try {
+//     const {  date } = req.body; 
+//     const user = await Account.findOne({ id: userId});
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found" });
+//         }
+//         const requestedDate =moment(new Date(date)).format("YYYY-MM-DD")
+        
+//         const DataEntry = user.Data.find(entry => {
+//             const entryDate =moment(new Date(entry.date)).format("YYYY-MM-DD")
+        
+//             console.log(entryDate+"  "+requestedDate)
+//             return entryDate === requestedDate;
+//         });
+
+//         if (DataEntry) {
+//             // If an entry exists for the requested date, return the values
+//             return res.json({ 
+//                 message: "CO2 data retrieved successfully",
+//                 data: DataEntry.CO2,
+//                 DataAccessTime:DataEntry.CO2AccessTime
+                
+//             });
+//         } else {
+//             // If no entry for the requested date, return a message indicating no data was found
+            
+//             return res.status(404).json({ message: "No CO2 data found for the specified date" });
+//         }
+//     }
+//     catch (error) {
+//         console.error("Error retrieving CO2 data:", error);
+//         return res.status(500).json({ message: "Error retrieving CO2 data", error: error.message });
+//     }
+// }
 exports.AddCO2Data = async (req, res, next) => {
     try {
         const {values } = req.body;
@@ -322,7 +368,8 @@ exports.getSoundThreshold=async (req,res,next)=>{
 }
 exports.addData = async (req, res, next) => {
     try {
-        const { soundValues, vocValues, co2Values } = req.body;
+        const { soundValues, vocValues, co2Values, soundTime,  vocTime,co2Time } = req.body;
+        console.log(req.body)
         const currentDate = moment(new Date()).format("YYYY-MM-DD");
 
         const user = await Account.findOne({ id: userId });
@@ -333,19 +380,58 @@ exports.addData = async (req, res, next) => {
         // Find or create the entry for the current date
         let dataEntry = user.Data.find(entry => moment(entry.date).format("YYYY-MM-DD") === currentDate);
         if (!dataEntry) {
-            dataEntry = { date: currentDate, SoundLevel: [], VOC: [], CO2: [] };
+            dataEntry = {
+                date: currentDate,
+                SoundLevel: [],
+                VOC: [],
+                CO2: [],
+                SoundAccessTime: [],
+                VOCAccessTime: [],
+                CO2AccessTime: []
+            };
             user.Data.push(dataEntry);
         }
 
-        // Update the existing entry
-        dataEntry.SoundLevel.push(...soundValues);
-        dataEntry.VOC.push(...vocValues);
-        dataEntry.CO2.push(...co2Values);
+        // Update the existing entries
+        const soundMinLength = Math.min(soundValues.length, soundTime.length);
+        dataEntry.SoundLevel.push(...soundValues.slice(0, soundMinLength));
+        dataEntry.SoundAccessTime.push(...soundTime.slice(0, soundMinLength));
 
-        await user.save(); // Save the updated document
+        const vocMinLength = Math.min(vocValues.length, vocTime.length);
+        dataEntry.VOC.push(...vocValues.slice(0, vocMinLength));
+        dataEntry.VOCAccessTime.push(...vocTime.slice(0, vocMinLength));
+
+        const co2MinLength = Math.min(co2Values.length, co2Time.length);
+        dataEntry.CO2.push(...co2Values.slice(0, co2MinLength));
+        dataEntry.CO2AccessTime.push(...co2Time.slice(0, co2MinLength));
+
+        let currentInfo=await user.save(); // Save the updated document
+        console.log(currentInfo);
         return res.json({ message: "Data updated successfully" });
     } catch (error) {
         console.error("Error updating data:", error);
         return res.status(500).json({ message: "Error updating data", error: error.message });
     }
+};
+
+exports.getDates = async (req, res, next) => {
+    try {
+      
+     
+
+        const user = await Account.findOne({ id: userId });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const dates = user.Data.map(dataEntry => dataEntry.date);
+
+        return res.status(200).json({ dates });
+        
+        
+      
+    }
+ catch (error) {
+    console.error('Error getting dates:', error);
+    return res.status(500).json({ message: "Error fetching dates" });
+}
 };

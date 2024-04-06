@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.mainpage.API.Model.AccessTime;
 import com.example.mainpage.API.ThresholdData;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
@@ -25,11 +26,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 public class StatActivity extends AppCompatActivity {
@@ -42,7 +39,7 @@ public class StatActivity extends AppCompatActivity {
     private LineGraphSeries<DataPoint> thresholdSoundLine;
     private LineGraphSeries<DataPoint> thresholdVOCLine;
     private LineGraphSeries<DataPoint> thresholdCO2Line;
-
+    private int baseTimeInSeconds;
     private GraphView soundLevelGraph;
     private GraphView VOCGraph;
     private GraphView CO2Graph;
@@ -100,24 +97,8 @@ public class StatActivity extends AppCompatActivity {
 
         //Added ability to tap on values and get toast message
 
-        soundLevelDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series soundLevelDataSeries, DataPointInterface dataPoint) {
-                Toast.makeText(StatActivity.this, "Sound Level: "+ dataPoint.getY() + " dB", Toast.LENGTH_SHORT).show();
-            }
-        });
-        CO2DataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series CO2DataSeries, DataPointInterface dataPoint) {
-                Toast.makeText(StatActivity.this, "CO2 Level: "+ dataPoint.getY() + " ppm", Toast.LENGTH_SHORT).show();
-            }
-        });
-        VOCDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
-            @Override
-            public void onTap(Series VOCDataSeries, DataPointInterface dataPoint) {
-                Toast.makeText(StatActivity.this, "VOC Level: "+ dataPoint.getY() + " ppb", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+
 
         // Add empty series to graphs
         soundLevelGraph.addSeries(soundLevelDataSeries);
@@ -159,14 +140,14 @@ public class StatActivity extends AppCompatActivity {
 
     private void refreshData() {
         // Call method to retrieve sound data
-        DataRetrieveWorker.retrieveSoundDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+        DataRetrieveWorker.retrieveSoundDataFromServer("2024-04-05", new DataRetrieveWorker.DataCallback() {
             @Override
-            public void onDataLoaded(ArrayList<Double> soundDataList) {
+            public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
                 // Log the data size of sound dataset
                 Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
 
                 // Update sound level graph with the retrieved sound data
-                updateSoundLevelGraph(soundDataList);
+                updateSoundLevelGraph(soundDataList,accessTimeList);
 
                 // Update dataSize
                 dataSize = soundDataList.size();
@@ -175,14 +156,14 @@ public class StatActivity extends AppCompatActivity {
                 soundThresholdValue = thresholdData.getSavedThreshold();
 
                 // Call method to retrieve VOC data
-                DataRetrieveWorker.retrieveVOCDataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                DataRetrieveWorker.retrieveVOCDataFromServer("2024-04-05", new DataRetrieveWorker.DataCallback() {
                     @Override
-                    public void onDataLoaded(ArrayList<Double> vocDataList) {
+                    public void onDataLoaded(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimeList) {
                         // Log the data size of VOC dataset
                         Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
 
                         // Update VOC graph with the retrieved VOC data
-                        updateVOCGraph(vocDataList);
+                        updateVOCGraph(vocDataList,accessTimeList);
 
                         // Update dataSize
                         dataSize = Math.max(dataSize, vocDataList.size());
@@ -191,14 +172,14 @@ public class StatActivity extends AppCompatActivity {
                         vocThresholdValue = thresholdData.getSavedThreshold();
 
                         // Call method to retrieve CO2 data
-                        DataRetrieveWorker.retrieveCO2DataFromServer("2024-03-24", new DataRetrieveWorker.DataCallback() {
+                        DataRetrieveWorker.retrieveCO2DataFromServer("2024-04-05", new DataRetrieveWorker.DataCallback() {
                             @Override
-                            public void onDataLoaded(ArrayList<Double> co2DataList) {
+                            public void onDataLoaded(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimeList) {
                                 // Log the data size of CO2 dataset
                                 Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
 
                                 // Update CO2 graph with the retrieved CO2 data
-                                updateCO2Graph(co2DataList);
+                                updateCO2Graph(co2DataList,accessTimeList);
 
                                 // Update dataSize
                                 dataSize = Math.max(dataSize, co2DataList.size());
@@ -277,147 +258,208 @@ public class StatActivity extends AppCompatActivity {
         }});
     }
 
-    private void updateSoundLevelGraph(ArrayList<Double> soundDataList) {
+    private void updateSoundLevelGraph(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimes) {
         try {
-//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
-//            Collections.sort(soundDataList);
-
+            if (soundDataList.size() != accessTimes.size()) {
+                throw new IllegalArgumentException("The size of sound data and access times must be the same");
+            }
+            if (!accessTimes.isEmpty()) {
+                AccessTime baseTime = accessTimes.get(0);
+                baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
+            }
             DataPoint[] soundLevelDataPoints = new DataPoint[soundDataList.size()];
+            AccessTime baseTime = accessTimes.get(0);
+            AccessTime lastTime = accessTimes.get(accessTimes.size() - 1);
+            double baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
+            double lastTimeInSeconds = lastTime.getHour() * 3600 + lastTime.getMinute() * 60 + lastTime.getSecond();
+            double totalTimeSpan = lastTimeInSeconds - baseTimeInSeconds;
 
             for (int i = 0; i < soundDataList.size(); i++) {
-                soundLevelDataPoints[i] = new DataPoint(i, soundDataList.get(i));
-
+                AccessTime at = accessTimes.get(i);
+                double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                double timeOffset = timeInSeconds - baseTimeInSeconds;
+                soundLevelDataPoints[i] = new DataPoint(timeOffset, soundDataList.get(i));
             }
 
-            // Resets the data and sets with new data to update the graph
             soundLevelDataSeries.resetData(soundLevelDataPoints);
 
-            //Added Dots to data points
             soundLevelDataSeries.setDrawDataPoints(true);
             soundLevelDataSeries.setDataPointsRadius(10);
 
-            // Establishes minimum and max X values
-            soundLevelGraph.getViewport().setMinX(0);
-            soundLevelGraph.getViewport().setMaxX(soundDataList.size() - 1);
-
-            // Establishes minimum and max Y values
-            soundLevelGraph.getViewport().setMinY(0);
-            soundLevelGraph.getViewport().setMaxY(2000);
-
-            // Allows to zoom and scroll within the graphs
-            soundLevelGraph.getViewport().setScrollable(true); // enables horizontal scrolling
-            soundLevelGraph.getViewport().setScrollableY(true); // enables vertical scrolling
+            soundLevelGraph.getViewport().setMinX(soundLevelDataPoints[0].getX());
+            soundLevelGraph.getViewport().setMaxX(soundLevelDataPoints[soundDataList.size() - 1].getX());
+            soundLevelGraph.getViewport().setScrollable(true);
             soundLevelGraph.getViewport().setScalable(true);
-            soundLevelGraph.getViewport().setScalableY(true);
 
-
-
-
-            // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
-            glrSound.setPadding(128); // should allow for 5 digits to fit on screen
+            glrSound.setNumHorizontalLabels(5);
 
-            // Adds a sound threshold line on the graph
-            soundLevelGraph.addSeries(thresholdSoundLine);
+            double labelInterval = totalTimeSpan / 4; // 4 intervals for 5 labels
 
+            soundLevelGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                @Override
+                public String formatLabel(double value, boolean isValueX) {
+                    if (isValueX) {
+                        double adjustedValue = baseTimeInSeconds + value;
+                        // Check if the value is close to one of the label positions
+                        for (int i = 0; i <= 4; i++) {
+                            double labelTimeInSeconds = baseTimeInSeconds + (labelInterval * i);
+                            if (Math.abs(adjustedValue - labelTimeInSeconds) < (labelInterval / 2)) {
+                                int hours = (int) (labelTimeInSeconds / 3600);
+                                int minutes = (int) ((labelTimeInSeconds % 3600) / 60);
+                                return String.format("%02d:%02d", hours, minutes);
+                            }
+                        }
+                        return ""; // Return empty string to not draw the label
+                    } else {
+                        return super.formatLabel(value, false);
+                    }
+                }
+            });
+            soundLevelDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+                @Override
+                public void onTap(Series soundLevelDataSeries, DataPointInterface dataPoint) {
+                    double totalSeconds = baseTimeInSeconds + dataPoint.getX();
+                    int hours = (int) (totalSeconds / 3600);
+                    int minutes = (int) ((totalSeconds % 3600) / 60);
+                    int seconds = (int) (totalSeconds % 60);
 
+                    String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                    Toast.makeText(StatActivity.this, "Time: " + timeString + ", Sound Level: " + dataPoint.getY() + " dB", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 
-    private void updateVOCGraph(ArrayList<Double> vocDataList) {
+    private void updateVOCGraph(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimes) {
         try {
-//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
-//            Collections.sort(vocDataList);
-
+            if (vocDataList.size() != accessTimes.size()) {
+                throw new IllegalArgumentException("The size of VOC data and access times must be the same");
+            }
+            if (!accessTimes.isEmpty()) {
+                AccessTime baseTime = accessTimes.get(0);
+                baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
+            }
             DataPoint[] vocDataPoints = new DataPoint[vocDataList.size()];
 
             for (int i = 0; i < vocDataList.size(); i++) {
-                vocDataPoints[i] = new DataPoint(i, vocDataList.get(i));
+                AccessTime at = accessTimes.get(i);
+                double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                double timeOffset = timeInSeconds - baseTimeInSeconds;
+                vocDataPoints[i] = new DataPoint(timeOffset, vocDataList.get(i));
             }
 
             VOCDataSeries.resetData(vocDataPoints);
 
-            //Added Dots to data point
             VOCDataSeries.setDrawDataPoints(true);
             VOCDataSeries.setDataPointsRadius(10);
 
-            // Set X bounds for VOC graph
-            VOCGraph.getViewport().setMinX(0);
-            VOCGraph.getViewport().setMaxX(vocDataList.size() - 1);
-
-            // Set Y bounds for VOC graph
-            VOCGraph.getViewport().setMinY(0);
-            VOCGraph.getViewport().setMaxY(2000);
-
-            // Allow zoom and scroll
+            VOCGraph.getViewport().setMinX(vocDataPoints[0].getX());
+            VOCGraph.getViewport().setMaxX(vocDataPoints[vocDataList.size() - 1].getX());
             VOCGraph.getViewport().setScrollable(true);
-            VOCGraph.getViewport().setScrollableY(true);
             VOCGraph.getViewport().setScalable(true);
-            VOCGraph.getViewport().setScalableY(true);
 
-            // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
-            glrVOC.setPadding(128); // should allow for 5 digits to fit on screen
+            glrVOC.setNumHorizontalLabels(5);
 
-            // Adds a VOC threshold line on the graph
-            VOCGraph.addSeries(thresholdVOCLine);
+            VOCGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                @Override
+                public String formatLabel(double value, boolean isValueX) {
+                    if (isValueX) {
+                        double totalSeconds = baseTimeInSeconds + value;
+                        int hours = (int) (totalSeconds / 3600);
+                        int minutes = (int) ((totalSeconds % 3600) / 60);
+                        return String.format("%02d:%02d", hours, minutes);
+                    } else {
+                        return super.formatLabel(value, false);
+                    }
+                }
+            });
+
+            VOCDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+                @Override
+                public void onTap(Series series, DataPointInterface dataPoint) {
+                    double totalSeconds = baseTimeInSeconds + dataPoint.getX();
+                    int hours = (int) (totalSeconds / 3600);
+                    int minutes = (int) ((totalSeconds % 3600) / 60);
+                    int seconds = (int) (totalSeconds % 60);
+
+                    String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                    Toast.makeText(StatActivity.this, "Time: " + timeString + ", VOC Level: " + dataPoint.getY() + " ppb", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void updateCO2Graph(ArrayList<Double> co2DataList) {
+    private void updateCO2Graph(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimes) {
         try {
-//            // Sort the sound data list based on the X-values (assuming the X-values are integers)
-//            Collections.sort(co2DataList);
-
+            if (co2DataList.size() != accessTimes.size()) {
+                throw new IllegalArgumentException("The size of CO2 data and access times must be the same");
+            }
+            if (!accessTimes.isEmpty()) {
+                AccessTime baseTime = accessTimes.get(0);
+                baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
+            }
             DataPoint[] co2DataPoints = new DataPoint[co2DataList.size()];
 
             for (int i = 0; i < co2DataList.size(); i++) {
-                co2DataPoints[i] = new DataPoint(i, co2DataList.get(i));
+                AccessTime at = accessTimes.get(i);
+                double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                double timeOffset = timeInSeconds - baseTimeInSeconds;
+                co2DataPoints[i] = new DataPoint(timeOffset, co2DataList.get(i));
             }
-
 
             CO2DataSeries.resetData(co2DataPoints);
 
-
-            //Added Dots to data points
             CO2DataSeries.setDrawDataPoints(true);
             CO2DataSeries.setDataPointsRadius(10);
 
-            Log.d("HardBLE",String.valueOf(co2DataList.size()));
-
-            // Set X bounds for CO2 graph
-            CO2Graph.getViewport().setMinX(0);
-            CO2Graph.getViewport().setMaxX(co2DataList.size() - 1);
-
-            // Set Y bounds for CO2 graph
-            CO2Graph.getViewport().setMinY(0);
-            CO2Graph.getViewport().setMaxY(9000);
-
-            // Allow zoom and scroll
+            CO2Graph.getViewport().setMinX(co2DataPoints[0].getX());
+            CO2Graph.getViewport().setMaxX(co2DataPoints[co2DataList.size() - 1].getX());
             CO2Graph.getViewport().setScrollable(true);
-            CO2Graph.getViewport().setScrollableY(true);
             CO2Graph.getViewport().setScalable(true);
-            CO2Graph.getViewport().setScalableY(true);
 
-            // Allows to add padding to frame the Y axis values
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
-            glrCO2.setPadding(128); // should allow for 5 digits to fit on screen
+            glrCO2.setNumHorizontalLabels(5);
 
-            // Adds a CO2 threshold line on the graph
-            CO2Graph.addSeries(thresholdCO2Line);
+            CO2Graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                @Override
+                public String formatLabel(double value, boolean isValueX) {
+                    if (isValueX) {
+                        double totalSeconds = baseTimeInSeconds + value;
+                        int hours = (int) (totalSeconds / 3600);
+                        int minutes = (int) ((totalSeconds % 3600) / 60);
+                        return String.format("%02d:%02d", hours, minutes);
+                    } else {
+                        return super.formatLabel(value, false);
+                    }
+                }
+            });
 
+            CO2DataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
+                @Override
+                public void onTap(Series series, DataPointInterface dataPoint) {
+                    double totalSeconds = baseTimeInSeconds + dataPoint.getX();
+                    int hours = (int) (totalSeconds / 3600);
+                    int minutes = (int) ((totalSeconds % 3600) / 60);
+                    int seconds = (int) (totalSeconds % 60);
+
+                    String timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+                    Toast.makeText(StatActivity.this, "Time: " + timeString + ", CO2 Level: " + dataPoint.getY() + " ppm", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
 
 

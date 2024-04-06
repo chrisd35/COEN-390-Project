@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const accessTimeSchema = new Schema({
+    hour: Number,
+    minute: Number,
+    second: Number
+});
+
 const soundDataSchema = new Schema({
     date: {
         type:String,
@@ -8,6 +14,10 @@ const soundDataSchema = new Schema({
     CO2: [Number],
     VOC :[Number],
     SoundLevel:[Number],
+    CO2AccessTime: [accessTimeSchema],  // Correct field name
+    VOCAccessTime: [accessTimeSchema],  // Correct field name
+    SoundAccessTime: [accessTimeSchema] // Correct syntax and field name
+    
 });
 
 

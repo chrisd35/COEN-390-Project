@@ -45,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.mainpage.API.DataCallback;
+import com.example.mainpage.API.Model.AccessTime;
 import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.RetrofitClient;
@@ -58,6 +59,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,7 +77,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static String averageVOC;
 
     public static String averageSound;
-
+    public static LocalTime now;
+    public static int hour;
+    public static int minutes;
     private long lastNotificationTime = 0;
     //    private static final long NOTIFICATION_DELAY = 60000;
     private static final long NOTIFICATION_DELAY = 900000;
@@ -106,6 +110,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
     static ArrayList<Integer> Co2data = new ArrayList<Integer>();
     static ArrayList<Integer> Sounddata = new ArrayList<Integer>();
     static ArrayList<Integer> VOCdata = new ArrayList<Integer>();
+    static ArrayList<AccessTime> Co2dataTime = new ArrayList<>();
+    static ArrayList<AccessTime> SounddataTime = new ArrayList<>();
+    static ArrayList<AccessTime> VOCdataTIme = new ArrayList<>();
     Button SoundDataCollect;
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
@@ -442,6 +449,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //let user know when connected
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     runOnUiThread(() -> showToast("Connected to ESP32"));
+                     now=LocalTime.now();
+                     hour=now.getHour();
+                     minutes=now.getMinute();
                     if (ActivityCompat.checkSelfPermission(MainPageActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         checkPermissions();
                         return;
@@ -487,13 +497,17 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     byte[] value = characteristic.getValue();
                     // Example: Converting the byte array to a integer
                     int intValue = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                    now=LocalTime.now();
+
+                    AccessTime accessTime=new AccessTime(now.getHour(),now.getMinute(),now.getSecond());
                     //store the value into to the proper array
                     if (characteristic.getUuid().toString().equals(CharacteristicOneUUID)) {
                         Co2data.add(intValue);
-                        //put it in to the sounddata characteristics
+                        Co2dataTime.add(accessTime);
 
                     } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
                         Sounddata.add(intValue);
+                        SounddataTime.add(accessTime);
                         long currentTime = System.currentTimeMillis();
                         int currentThreshold = thresholdData.getSavedThreshold();
                         boolean thresholdDataexist = thresholdData.ThresholdExist();
@@ -506,6 +520,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         }
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
                         VOCdata.add(intValue);
+                        VOCdataTIme.add(accessTime);
                     }
 
 
@@ -687,7 +702,12 @@ public class MainPageActivity<T> extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(Tag, "DESTROY");
-
+        Co2data.clear();
+        Sounddata.clear();
+        VOCdata.clear();
+        Co2dataTime.clear();
+        SounddataTime.clear();
+        VOCdataTIme.clear();
         // Stop the Bluetooth scanning explicitly if it's still running
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
             bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
