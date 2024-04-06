@@ -171,6 +171,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         schedulePeriodicWorkWithInitialDelay();
 
+
 //        receiveDatafromServer("2024-03-21", new DataCallback() {
 //            @Override
 //            public void onDataLoaded(List<Double> data) {
@@ -498,10 +499,11 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     // Example: Converting the byte array to a integer
                     int intValue = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN).getInt();
                     now=LocalTime.now();
-
                     AccessTime accessTime=new AccessTime(now.getHour(),now.getMinute(),now.getSecond());
+
                     //store the value into to the proper array
                     if (characteristic.getUuid().toString().equals(CharacteristicOneUUID)) {
+
                         Co2data.add(intValue);
                         Co2dataTime.add(accessTime);
 
@@ -514,7 +516,6 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
                         Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
                         if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
-                            makeNotification("Threshold Notification");
                             makeNotification("Noise Alert","Noise is over "+ String.valueOf(currentThreshold)+" dB","Your current environment  exceeds the threshold of "+String.valueOf(currentThreshold)+"dB you have set. ");
                             lastNotificationTime = currentTime; // Update the last notification time
                         }

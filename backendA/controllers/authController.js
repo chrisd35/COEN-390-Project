@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
 const passport = require('passport');
+const { json } = require("body-parser");
+require('dotenv').config();
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const saltRounds = 10;
 let userId;
 
@@ -90,6 +94,83 @@ exports.logOut = async(req, res, next)=>{
 
     
 }
+const generateToken = () => {
+    return crypto.randomBytes(20).toString('hex');
+  };
+  const sendPasswordResetEmail = async (email, token) => {
+    const transporter = nodemailer.createTransport({
+      // Configure your email service provider here
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL,
+        pass: process.env.GMAILPASSWORD,
+      },
+    });
+  
+    const mailOptions = {
+      from: process.env.GMAIL,
+      to: email,
+      subject: 'Password Reset Request',
+      html: `<p>Click <a href="https://forgotpasswordcoen390.netlify.app/?token=${token}">here</a> to reset your password.</p>`,
+    };
+  
+    await transporter.sendMail(mailOptions);
+  };
+exports.forgotPassword = async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+      // Generate a unique token
+      const token = generateToken();
+  
+      // Save the token and its expiration time in the database
+      await Account.findOneAndUpdate(
+        { username:email },
+        {
+          resetPasswordToken: token,
+          resetPasswordExpires: Date.now() + 3600000*5, // Token expires in 5 hour
+        }
+      );
+  
+      // Send the password reset email
+      await sendPasswordResetEmail(email, token);
+  
+      res.json({ message: 'Password reset email sent. Check your inbox.' });
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      res.status(500).json({ message: 'Failed to send password reset email' });
+    }
+  };
+  exports.resetPassword = async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+  
+      // Find the user by the reset token and check if it's still valid
+      const user = await Account.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() },
+      });
+  
+      if (!user) {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
+  
+      // Update the user's password
+      const hashedPass = await bcrypt.hash(newPassword, saltRounds)
+      user.password = hashedPass;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+  
+      res.json({ message: 'Password reset successfully' });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      res.status(500).json({ error: 'Failed to reset password' });
+    }
+  };
+  
+
+  
 exports.authenticatedCheck=async(req, res, next)=>{
 
     console.log("Authentication Check "+req.isAuthenticated());

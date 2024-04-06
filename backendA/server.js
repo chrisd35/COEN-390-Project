@@ -4,12 +4,16 @@ const bodyParser = require("body-parser")
 const express = require("express")
 const passport = require('passport');
 require('./config/passport.js')(passport);
-
+const cors = require('cors');
 const session = require('express-session');
 
 
 
 const app = express()
+app.use(cors());
+app.use(cors({
+    origin: 'https://forgotpasswordcoen390.netlify.app'
+}));
 app.use(session({
     secret: 'secret', 
     resave: true,

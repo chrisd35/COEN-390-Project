@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mainpage.API.RetrofitClient;
@@ -30,6 +31,7 @@ public class loginActivity extends AppCompatActivity {
     protected EditText usernameEdit;
     protected EditText passwordEdit;
     protected Toolbar toolbar;
+    protected TextView forgotpassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +46,14 @@ public class loginActivity extends AppCompatActivity {
     usernameEdit =findViewById(R.id.usernameLoginEditText);
 
     passwordEdit =findViewById(R.id.passwordLoginEditText);
+    forgotpassword=findViewById(R.id.ForgotPassword);
 
+    forgotpassword.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            gotosentresetPasswordPage();
+        }
+    });
         loginButton.setOnClickListener(new View.OnClickListener()
     {
         @Override
@@ -62,6 +71,13 @@ public class loginActivity extends AppCompatActivity {
     }
     });
 }
+
+    private void gotosentresetPasswordPage() {
+        Intent intent = new Intent(this, SendResetPassword.class);
+
+        startActivity(intent);
+    }
+
     private void userAuthentication(){
         String username= usernameEdit.getText().toString().trim();
         String password= passwordEdit.getText().toString().trim();

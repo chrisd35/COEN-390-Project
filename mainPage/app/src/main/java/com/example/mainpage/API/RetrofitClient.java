@@ -5,6 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static final String BASE_URL= "https://coen390backend.nn.r.appspot.com";
+
     private static  RetrofitClient mInstance;
     private Retrofit retrofit;
 
