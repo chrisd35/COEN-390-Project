@@ -12,9 +12,12 @@ import com.example.mainpage.API.Model.DataSendRequest;
 import com.example.mainpage.API.RetrofitClient;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -22,6 +25,7 @@ import retrofit2.Response;
 
 public class DataSendWorker extends Worker {
     private String TAG = "HardBLE";
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 
     public DataSendWorker(
             @NonNull Context context,
@@ -38,8 +42,10 @@ public class DataSendWorker extends Worker {
         ArrayList<AccessTime> vocTimeDataToSend = new ArrayList<>(MainPageActivity.VOCdataTIme);
         ArrayList<AccessTime> co2TimeDataToSend = new ArrayList<>(MainPageActivity.Co2dataTime);
 
+        sdf.setTimeZone(TimeZone.getDefault()); // Use the client's default timezone
+        String currentDate = sdf.format(new Date());
         // Send all data and clear if successful
-        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend,soundTimeDataToSend,vocTimeDataToSend,co2TimeDataToSend)) {
+        if (sendAlldata(soundDataToSend, vocDataToSend, co2DataToSend,soundTimeDataToSend,vocTimeDataToSend,co2TimeDataToSend ,currentDate)) {
             synchronized (MainPageActivity.Sounddata) {
                 MainPageActivity.Sounddata.clear();
                 MainPageActivity.SounddataTime.clear();
@@ -86,9 +92,9 @@ public class DataSendWorker extends Worker {
 //    }
 
 
-    private boolean sendAlldata(ArrayList<Integer> sound, ArrayList<Integer> voc, ArrayList<Integer> co2,ArrayList<AccessTime> soundTime, ArrayList<AccessTime> vocTime, ArrayList<AccessTime> co2Time) {
+    private boolean sendAlldata(ArrayList<Integer> sound, ArrayList<Integer> voc, ArrayList<Integer> co2,ArrayList<AccessTime> soundTime, ArrayList<AccessTime> vocTime, ArrayList<AccessTime> co2Time,String currentDate) {
         RetrofitClient client = RetrofitClient.getInstance();
-        Call<ResponseBody> call = client.getApi().AddData(new AllDataSendRequest(sound, voc, co2,soundTime,vocTime,co2Time));
+        Call<ResponseBody> call = client.getApi().AddData(new AllDataSendRequest(sound, voc, co2,soundTime,vocTime,co2Time,currentDate));
 
         try {
             Response<ResponseBody> response = call.execute(); // Execute the call synchronously

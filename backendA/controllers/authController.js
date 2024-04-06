@@ -33,7 +33,7 @@ exports.signup = async (req, res) => {
             username: email,
             password: hashedPass,
             Data: [{
-                date: moment().format("YYYY-MM-DD"), // Use current date or another default date
+                
                 CO2: [],
                 VOC: [],
                 SoundLevel: [],
@@ -473,10 +473,13 @@ exports.getSoundThreshold=async (req,res,next)=>{
 }
 exports.addData = async (req, res, next) => {
     try {
-        const { soundValues, vocValues, co2Values, soundTime,  vocTime,co2Time } = req.body;
+        const { soundValues, vocValues, co2Values, soundTime,  vocTime,co2Time,clientDate } = req.body;
         console.log(req.body)
-        const currentDate = moment(new Date()).format("YYYY-MM-DD");
-
+        
+        const currentDate = moment(clientDate).format("YYYY-MM-DD");
+        console.log(currentDate)
+        const time = moment(clientDate).format("HH:mm:ss");
+        console.log("Current Time:", time);
         const user = await Account.findOne({ id: userId });
         if (!user) {
             return res.status(404).json({ message: "User not found" });

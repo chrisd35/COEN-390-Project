@@ -11,6 +11,22 @@ public class AllDataSendRequest<T> {
     private List<AccessTime> co2Time;
 
 
+
+    private String Date;
+    public String getDate() {
+        return Date;
+    }
+
+    public AllDataSendRequest(List<T> soundValues, List<T> vocValues, List<T> co2Values, List<AccessTime> soundTime, List<AccessTime> vocTime, List<AccessTime> co2Time, String date) {
+        this.soundValues = soundValues;
+        this.vocValues = vocValues;
+        this.co2Values = co2Values;
+        this.soundTime = soundTime;
+        this.vocTime = vocTime;
+        this.co2Time = co2Time;
+        Date = date;
+    }
+
     public AllDataSendRequest(List<T> soundValues, List<T> vocValues, List<T> co2Values, List<AccessTime> soundTime, List<AccessTime> vocTime, List<AccessTime> co2Time) {
         this.soundValues = soundValues;
         this.vocValues = vocValues;
