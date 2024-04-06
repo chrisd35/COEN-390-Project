@@ -2,6 +2,7 @@ package com.example.mainpage.API;
 
 import com.example.mainpage.API.Model.AllDataSendRequest;
 import com.example.mainpage.API.Model.DataSendRequest;
+import com.example.mainpage.API.Model.ResetPasswordRequest;
 import com.example.mainpage.API.Model.RetrieveData;
 import com.example.mainpage.API.Model.SetThresholdRequest;
 
@@ -53,6 +54,7 @@ public interface APIservice {
     Call<ResponseBody> getSoundThreshold();
     @POST("AddData")
     Call<ResponseBody> AddData(@Body AllDataSendRequest allDataSendRequest);
-
+    @POST("forgotpassword")
+    Call<ResponseBody> SendForgotPasswordRequest(@Body ResetPasswordRequest resetPasswordRequest);
 
 }

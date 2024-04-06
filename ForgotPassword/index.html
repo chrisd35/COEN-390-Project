@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #passwordChangeForm {
+            max-width: 300px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        #message {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="passwordChangeForm">
+        <h2>Reset Password</h2>
+        <input type="password" id="newPassword" placeholder="New Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
+        <button onclick="resetPassword()">Reset Password</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function resetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageElement = document.getElementById('message');
+            const token = getQueryParam('token');
+
+            if (!token) {
+                messageElement.textContent = 'Token is missing.';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                messageElement.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            fetch('https://coen390backend.nn.r.appspot.com/resetpassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token, newPassword })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                messageElement.textContent = data.message;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                messageElement.textContent = 'Error resetting password';
+            });
+        }
+    </script>
+</body>
+</html>

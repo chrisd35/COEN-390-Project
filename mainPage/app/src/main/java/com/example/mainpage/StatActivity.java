@@ -3,6 +3,7 @@ package com.example.mainpage;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
@@ -124,6 +125,7 @@ public class StatActivity extends AppCompatActivity {
     private void refreshData() {
 //         Call method to retrieve sound data
         DataRetrieveWorker.retrieveSoundDataFromServer("2024-04-05", new DataRetrieveWorker.DataCallback() {
+
             @Override
             public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
                 // Log the data size of sound dataset
@@ -136,6 +138,7 @@ public class StatActivity extends AppCompatActivity {
                 dataSize = soundDataList.size();
 
                 // Store sound threshold value
+                if(thresholdData.ThresholdExist())
                 soundThresholdValue = thresholdData.getSavedThreshold();
 
                 // Call method to retrieve VOC data
@@ -239,7 +242,7 @@ public class StatActivity extends AppCompatActivity {
         series.setDrawAsPath(true);
         series.setAnimated(false);
         series.setDrawDataPoints(false);
-        series.setThickness(5);
+        series.setThickness(50);
         series.setCustomPaint(new Paint(Paint.ANTI_ALIAS_FLAG) {{
             setStyle(Paint.Style.STROKE);
             setPathEffect(new DashPathEffect(new float[]{10, 20}, 0)); // Adjust the array to change dash pattern
