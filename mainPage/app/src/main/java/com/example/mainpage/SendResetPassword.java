@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,7 +59,11 @@ public class SendResetPassword extends AppCompatActivity {
                         String body = response.body().string();
                         JSONObject jsonObj = new JSONObject(body);
                         String message = jsonObj.getString("message");
+                        boolean gologinpage=jsonObj.getBoolean("gotoNewPage");
+                        Log.d("HardBLE", String.valueOf(gologinpage));
                         Toast.makeText(SendResetPassword.this, message, Toast.LENGTH_SHORT).show();
+                        if(gologinpage)
+                            gotoLogin();
                     }
                     catch (IOException e) {
                         throw new RuntimeException(e);
@@ -69,7 +74,6 @@ public class SendResetPassword extends AppCompatActivity {
                     }
                     // Request successful, show a success message and navigate to login screen
 
-                    gotoLogin();
                 } else {
                     // Request failed, show an error message
                     Toast.makeText(SendResetPassword.this, "Failed to send reset password request", Toast.LENGTH_SHORT).show();
@@ -85,7 +89,6 @@ public class SendResetPassword extends AppCompatActivity {
     }
     private void gotoLogin(){
         Intent intent = new Intent(this, loginActivity.class);
-        Toast.makeText(this, "If an account exist, you will receive an link to reset your password", Toast.LENGTH_SHORT).show();
         startActivity(intent);
 
     }

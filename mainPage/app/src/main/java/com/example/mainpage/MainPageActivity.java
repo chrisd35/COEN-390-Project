@@ -81,8 +81,12 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static int hour;
     public static int minutes;
     private long lastNotificationTime = 0;
-    //    private static final long NOTIFICATION_DELAY = 60000;
+  ;
     private static final long NOTIFICATION_DELAY = 900000;
+    private long lastNotificationTimeCO2 = 0;
+    ;
+    private static final long NOTIFICATION_DELAYCO2 = 300000;
+
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
     protected ImageView Stats;
@@ -114,6 +118,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     static ArrayList<AccessTime> SounddataTime = new ArrayList<>();
     static ArrayList<AccessTime> VOCdataTIme = new ArrayList<>();
     Button SoundDataCollect;
+    Button CO2DataCollect;
     private Toast currentToast;
     Handler waitbeforescanning = new Handler();
     private ThresholdData thresholdData;
@@ -239,7 +244,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startTime, interval, pendingIntent);
 
 
-        Button CO2DataCollect = findViewById(R.id.AirQualitybutton);
+        CO2DataCollect = findViewById(R.id.AirQualitybutton);
         CO2DataCollect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -506,8 +511,18 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
                         Co2data.add(intValue);
                         Co2dataTime.add(accessTime);
+                        long currentTime = System.currentTimeMillis();
+                        if(intValue>1000 && intValue<1500 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)) {
+                            makeNotification("Air Quality Alert", "CO2 is over 1000 ppm ", "Our sensors detected a  high concentration of CO2 in your environment ","AirDialog");
+                        lastNotificationTimeCO2=currentTime;
+                        }
+                        else if(intValue<1600 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)){
+                            makeNotification(" Urgent Air Quality Alert", "CO2 is over 1600 ppm ", "Our sensors detected a concentration of CO2 in your environment above the safety level ","AirDialog");
+                            lastNotificationTimeCO2=currentTime;
+                        }
 
-                    } else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
+                    }
+                    else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
                         Sounddata.add(intValue);
                         SounddataTime.add(accessTime);
                         long currentTime = System.currentTimeMillis();
@@ -516,7 +531,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
                         Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
                         if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
-                            makeNotification("Noise Alert","Noise is over "+ String.valueOf(currentThreshold)+" dB","Your current environment  exceeds the threshold of "+String.valueOf(currentThreshold)+"dB you have set. ");
+                            makeNotification("Noise Alert","Noise is over "+ String.valueOf(currentThreshold)+" dB","Your current environment  exceeds the threshold of "+String.valueOf(currentThreshold)+"dB you have set. ","SoundDialog");
                             lastNotificationTime = currentTime; // Update the last notification time
                         }
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
@@ -880,9 +895,13 @@ public class MainPageActivity<T> extends AppCompatActivity {
         super.onNewIntent(intent);
         Log.d(Tag,"NEW ITNENT4343");
         setIntent(intent);  // Important to ensure getIntent() returns the latest intent
-        if (intent.getBooleanExtra("openDialog", false)) {
+        if (intent.getBooleanExtra("SoundDialog", false)) {
     SoundDataCollect.performClick();
            Log.d(Tag,"NEW ITNENT");
+        }
+       else if (intent.getBooleanExtra("AirDialog", false)) {
+            CO2DataCollect.performClick();
+            Log.d(Tag,"NEW ITNENT");
         }
     }
     public void gotoMainActivity(){
@@ -940,7 +959,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //        }
 //        notificationManager.notify(0,builder.build());
 //    }
-    public void makeNotification(String title,String message,String expandedText) {
+    public void makeNotification(String title,String message,String expandedText, String Dialog) {
         String channelID = "Channel_ID_notifications";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
         builder.setSmallIcon(R.drawable.logoleaf)
@@ -952,7 +971,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
         Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
-        intent.putExtra("openDialog", true);
+        intent.putExtra(Dialog, true);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);

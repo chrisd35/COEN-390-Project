@@ -7,18 +7,30 @@ const { json } = require("body-parser");
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const validator = require('validator');
 const saltRounds = 10;
 let userId;
 
 let authenticationcheck;
 exports.signup = async (req, res) => {
+
+    const email = req.body.username.toLowerCase();
+
+    // Validate email format
+    if (!validator.isEmail(email)) {
+        return res.json({
+            AccountCreated: false,
+            Message: "Invalid email format",
+        });
+    }
+
     const UserAccount = await Account.findOne({ username: req.body.username }).exec()
     if (!UserAccount) {
         const hashedPass = await bcrypt.hash(req.body.password, saltRounds)
 
         const newUser = new Account({
             id: uuidv4(),
-            username: req.body.username,
+            username: email,
             password: hashedPass,
             Data: [{
                 date: moment().format("YYYY-MM-DD"), // Use current date or another default date
@@ -63,7 +75,7 @@ exports.login = async (req, res, next) => {
         
             // Authentication failed
             console.log("failed authentication");
-            return res.json({ Authentication: req.isAuthenticated() , message: info.message });
+            return res.json({ Authentication: req.isAuthenticated() , message: "Invalid account/Password" });
         }
         // Manually establish the session
         req.login(user, (loginErr) => {
@@ -119,7 +131,19 @@ const generateToken = () => {
 exports.forgotPassword = async (req, res) => {
     try {
       const { email } = req.body;
-  
+     
+
+      // Validate email format
+      if (!validator.isEmail(email)) {
+        console.log({
+            gotoNewPage:false,
+          message: "Enter a valid email",
+      })
+          return res.json({
+                gotoNewPage:false,
+              message: "Enter a valid email",
+          });
+      }
       // Generate a unique token
       const token = generateToken();
   
@@ -135,10 +159,10 @@ exports.forgotPassword = async (req, res) => {
       // Send the password reset email
       await sendPasswordResetEmail(email, token);
   
-      res.json({ message: 'Password reset email sent. Check your inbox.' });
+      res.json({gotoNewPage:true, message: 'Password reset email sent. Check your inbox.' });
     } catch (error) {
       console.error('Error sending password reset email:', error);
-      res.status(500).json({ message: 'Failed to send password reset email' });
+      res.status(500).json({ gotoNewPage:false, message: 'Failed to send password reset email' });
     }
   };
   exports.resetPassword = async (req, res) => {
