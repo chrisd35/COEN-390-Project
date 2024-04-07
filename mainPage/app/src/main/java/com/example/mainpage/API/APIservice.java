@@ -57,4 +57,7 @@ public interface APIservice {
     @POST("forgotpassword")
     Call<ResponseBody> SendForgotPasswordRequest(@Body ResetPasswordRequest resetPasswordRequest);
 
+    @GET("getAllDates")
+    Call<ResponseBody> getAllDates();
+
 }

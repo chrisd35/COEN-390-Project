@@ -26,6 +26,52 @@ public class DataRetrieveWorker {
         void onFailure(String errorMessage);
     }
 
+    public static void retrieveAllDataFromServer(DataCallback callback) {
+        retrieveDataFromServer("sound", callback);
+        retrieveDataFromServer("VOC", callback);
+        retrieveDataFromServer("CO2", callback);
+    }
+
+    private static void retrieveDataFromServer(String dataType, DataCallback callback) {
+        RetrofitClient
+                .getInstance()
+                .getApi()
+                .getAllDates()
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        try {
+                            if (response.isSuccessful() && response.body() != null) {
+                                JSONArray datesArray = new JSONArray(response.body().string());
+                                for (int i = 0; i < datesArray.length(); i++) {
+                                    String date = datesArray.getString(i);
+                                    switch (dataType) {
+                                        case "sound":
+                                            retrieveSoundDataFromServer(date, callback);
+                                            break;
+                                        case "VOC":
+                                            retrieveVOCDataFromServer(date, callback);
+                                            break;
+                                        case "CO2":
+                                            retrieveCO2DataFromServer(date, callback);
+                                            break;
+                                    }
+                                }
+                            } else {
+                                callback.onFailure("Failed to retrieve dates");
+                            }
+                        } catch (IOException | JSONException e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        callback.onFailure(t.getMessage());
+                    }
+                });
+    }
+
     public static void retrieveSoundDataFromServer(String date, DataCallback callback) {
         Call<ResponseBody> call = RetrofitClient
                 .getInstance()

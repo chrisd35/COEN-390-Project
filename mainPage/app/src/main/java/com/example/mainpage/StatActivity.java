@@ -476,6 +476,79 @@ public class StatActivity extends AppCompatActivity {
         updateSoundLevelGraph(dummySoundData, dummyAccessTimes);
         updateVOCGraph(dummyVOCData, dummyAccessTimes);
         updateCO2Graph(dummyCO2Data, dummyAccessTimes);
+
+
+        // Correct skeleton that would be for retrieving weekly data
+//        DataRetrieveWorker.retrieveSoundDataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//            @Override
+//            public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
+//                // Log the data size of sound dataset
+//                Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
+//
+//                // Update sound level graph with the retrieved sound data
+//                updateSoundLevelGraph(soundDataList,accessTimeList);
+//
+//                // Update dataSize
+//                dataSize = soundDataList.size();
+//
+//                // Store sound threshold value
+//                soundThresholdValue = thresholdData.getSavedThreshold();
+//
+//                // Call method to retrieve VOC data
+//                DataRetrieveWorker.retrieveVOCDataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//                    @Override
+//                    public void onDataLoaded(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimeList) {
+//                        // Log the data size of VOC dataset
+//                        Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
+//
+//                        // Update VOC graph with the retrieved VOC data
+//                        updateVOCGraph(vocDataList,accessTimeList);
+//
+//                        // Update dataSize
+//                        dataSize = Math.max(dataSize, vocDataList.size());
+//
+//                        // Store VOC threshold value
+//                        vocThresholdValue = thresholdData.getSavedThreshold();
+//
+//                        // Call method to retrieve CO2 data
+//                        DataRetrieveWorker.retrieveCO2DataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//                            @Override
+//                            public void onDataLoaded(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimeList) {
+//                                // Log the data size of CO2 dataset
+//                                Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
+//
+//                                // Update CO2 graph with the retrieved CO2 data
+//                                updateCO2Graph(co2DataList,accessTimeList);
+//
+//                                // Update dataSize
+//                                dataSize = Math.max(dataSize, co2DataList.size());
+//
+//                                // Store CO2 threshold value
+//                                co2ThresholdValue = thresholdData.getSavedThreshold();
+//
+//                                // Create threshold lines after updating dataSize
+//                                createThresholdLines(soundThresholdValue,vocThresholdValue,co2ThresholdValue);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(String errorMessage) {
+//                                // Handle CO2 data retrieval failure
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onFailure(String errorMessage) {
+//                        // Handle VOC data retrieval failure
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onFailure(String errorMessage) {
+//                // Handle sound data retrieval failure
+//            }
+//        });
     }
 
 
