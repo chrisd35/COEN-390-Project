@@ -35,9 +35,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -75,7 +77,7 @@ import retrofit2.Response;
 public class MainPageActivity<T> extends AppCompatActivity {
     public static String averageCO2;
     public static String averageVOC;
-
+    private AlertDialog currentDialog;
     public static String averageSound;
     public static LocalTime now;
     public static int hour;
@@ -90,7 +92,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
     protected ImageView Stats;
-    protected ImageView Settings;
+    protected ImageView Setting;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothGatt bluetoothGatt;
@@ -100,7 +102,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final int PERMISSION_BLUETOOTH_SCAN = 3;
     private static final int PERMISSION_BLUETOOTH_CONNECT = 4;
     private static final int PERMISSION_POST_NOTIFICATIONS = 5;
-
+    private static final int REQUEST_ALL_PERMISSIONS = 6;
     private ActivityResultLauncher<Intent> enableBluetoothLauncher;
     private boolean shouldContinueReading = true;
     private String Tag = "HardBLE";
@@ -125,7 +127,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private Queue<BluetoothGattCharacteristic> readQueue = new LinkedList<>();
 
     private Authentication authentication;
-
+    private boolean isBluetoothInitialized = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -134,7 +136,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         authentication = new Authentication(getBaseContext());
         authentication.verifyAuthentication();
         Stats = findViewById(R.id.imageView3);
-        Settings = findViewById(R.id.imageButton);
+        Setting = findViewById(R.id.imageButton);
 
         SoundDataCollect = findViewById(R.id.SoundButton);
         Button Logout = findViewById(R.id.LogoutButton);
@@ -177,71 +179,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
         schedulePeriodicWorkWithInitialDelay();
 
 
-//        receiveDatafromServer("2024-03-21", new DataCallback() {
-//            @Override
-//            public void onDataLoaded(List<Double> data) {
-//                Log.d(Tag,String.valueOf(data.get(14300)));
-////               showToast(String.valueOf(data.get(14300)));
-//            }
-//        });
-//        try {
-//            Timer timer = new Timer();
-//            TimerTask task = new TimerTask() {
-//                @Override
-//                public void run() {
-//                    ArrayList<Double> DummyData=new ArrayList<>();
-//                    for(int i=0;i<180;i++){
-////                double value=(double) (100+i);
-//                        DummyData.add(144.23);
-//
-//                    }
-//                    sendDatatoServer(DummyData);
-//                }
-//            };
-//            long delay = 5000; // Delay before first execution (5 seconds)
-//            long interval = 60000; // Interval for repeating (1 minute)
-//
-//            timer.scheduleAtFixedRate(task, delay, interval);
-//
-//        }
-//
-//        catch (Exception e)
-//        {
-//            Log.e(Tag,e.getMessage());
-//        }
-//        private void schedulePeriodicWorkWithInitialDelay() {
-//            // Assume data preparation takes up to 5 minutes
-//            long initialDelay = 15; // minutes
-////
-//            PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-//                    DataSendWorker.class, 15, TimeUnit.MINUTES)
-//                    .setInitialDelay(initialDelay, TimeUnit.MINUTES)
-//                    .build();
-//
-//            WorkManager.getInstance(this).enqueue(periodicWorkRequest);
-////        }
-//        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-//                DataSendWorker.class, 15, TimeUnit.MINUTES) // Adjust time interval as needed
-//                .build();
 
-
-//        Handler handlerfirstTime=new Handler();
-//        Runnable task = new Runnable() {
-//            @Override
-//            public void run() {
-//                // Code to execute after the delay
-//                schedulePeriodicWork();
-//            }
-//        };
-//        handlerfirstTime.postDelayed(task, 900000);
-//        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent(this, AlarmReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        long interval = 60000; // 10 minutes in milliseconds
-//        long startTime = System.currentTimeMillis() + interval;
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startTime, interval, pendingIntent);
 
 
         CO2DataCollect = findViewById(R.id.AirQualitybutton);
@@ -301,43 +239,29 @@ public class MainPageActivity<T> extends AppCompatActivity {
             }
         });
 
-        Settings.setOnClickListener(new View.OnClickListener() {
+        Setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gotoSettingsPage();
             }
         });
-        checkPermissions();
-        enablebluetooth();
-        try {
+        ;
+        if (checkPermissions()) {
             initializeBluetooth();
-        } catch (Exception e) {
-            Log.e(Tag, e.getMessage());
         }
 
-//        sendDatatoServer(( new ArrayList<Integer>(Arrays.asList(5))), new SendDataCallback() {
-//                    @Override
-//                    public void onDataSent() {
-//
-//                        receiveDatafromServer("2024-03-09", new DataCallback() {
-//                            @Override
-//                            public void onDataLoaded(List<Double> data) {
-//                                String DataLine="";
-//                                for (int i = 0; i < data.size(); i++){
-//                                    Log.d("MainPageActivity",String.valueOf(data.get(i)));
-//
-//                                    DataLine+=String.valueOf(data.get(i))+", ";
-//                                }
-//                                Toast.makeText(MainPageActivity.this, DataLine, Toast.LENGTH_LONG).show();
-//                            }
-//                        });
-//                    }
-//                });
-//        sendDatatoServer(( new ArrayList<Double>(Arrays.asList(2.5,1.5))));
+
+
+
 
     }
 
     private void initializeBluetooth() {
+        if (isBluetoothInitialized) {
+            Log.d("MainPageActivity", "Bluetooth is already initialized.");
+            return;
+        }
+        isBluetoothInitialized = true;
         Log.d(Tag, "INITIALIZE");
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
@@ -347,46 +271,20 @@ public class MainPageActivity<T> extends AppCompatActivity {
         } else {
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
             Log.d(Tag, "TO GO SCANNING");
-            checkScanningpermission();
-        }
 
-    }
-
-    private void checkScanningpermission() {
-        Log.d(Tag, "Before Permission");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
-            Log.d(Tag, "Permission Granted");
             startScanning();
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_SCAN)) {
-            Log.d(Tag, "Permission Rationale");
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Need permission")
-                    .setTitle("Permission Required")
-                    .setCancelable(false)
-                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(MainPageActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_BLUETOOTH_SCAN);
-                            dialog.dismiss();
-                        }
-                    })
-                    .setNegativeButton("Cancel", ((dialog, which) -> dialog.dismiss()));
-            builder.show();
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_BLUETOOTH_SCAN);
-            Log.d(Tag, "Demanding Permission");
+
         }
 
-        Log.d(Tag, "After Permission");
-
     }
-//    private void schedulePeriodicWork() {
-//        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-//                DataSendWorker.class, 15, TimeUnit.MINUTES)
-//                .build();
-//
-//        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
-//    }
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        }, REQUEST_ALL_PERMISSIONS);
+    }
+
 
 
     private void startScanning() {
@@ -394,34 +292,19 @@ public class MainPageActivity<T> extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             checkPermissions();
         }
-        bluetoothLeScanner.startScan(scanCallback);
-//        bluetoothLeScanner.startScan(new ScanCallback() {
-//
-//            @Override
-//
-//            public void onScanResult(int callbackType, ScanResult result) {
-//                super.onScanResult(callbackType, result);
-//                BluetoothDevice device = result.getDevice();
-//                String targetDeviceName = "ESP32";
-//
-//                Log.d(Tag, "Scanning");
-////                showToast("Scanning for Device");
-//
-//
-//                if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//
-//                }
-//                if (device.getName() != null && device.getName().equals(targetDeviceName)) {
-//                    Log.d(Tag, "FoundDevice: " + targetDeviceName);
-//
-//                    if (ActivityCompat.checkSelfPermission(getBaseContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-//                        checkScanningpermission();
-//                    }
-//                    bluetoothLeScanner.stopScan(this); // Stop scanning as the target device is found
-//                    connectToDevice(device); // Proceed to connect to the device
-//                }
-//            }
-//        });
+
+        try {
+           if(checkPermissions())
+            bluetoothLeScanner.startScan(scanCallback);
+            else{
+               Log.e(Tag, "requiredPermission");
+            }
+        }catch (Exception e) {
+            Log.e(Tag, e.getMessage());
+        }
+
+
+
     }
 
     private final ScanCallback scanCallback = new ScanCallback() {
@@ -513,11 +396,11 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Co2dataTime.add(accessTime);
                         long currentTime = System.currentTimeMillis();
                         if(intValue>1000 && intValue<1500 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)) {
-                            makeNotification("Air Quality Alert", "CO2 is over 1000 ppm ", "Our sensors detected a  high concentration of CO2 in your environment ","AirDialog");
+                            makeNotification("Air Quality Alert", "CO2 is over 1000 ppm", "Our sensors detected a high concentration of CO2 in your environment", DIALOG_AIR, 100);
                         lastNotificationTimeCO2=currentTime;
                         }
                         else if(intValue<1600 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)){
-                            makeNotification(" Urgent Air Quality Alert", "CO2 is over 1600 ppm ", "Our sensors detected a concentration of CO2 in your environment above the safety level ","AirDialog");
+                            makeNotification(" Urgent Air Quality Alert", "CO2 is over 1600 ppm ", "Our sensors detected a concentration of CO2 in your environment above the safety level ",DIALOG_AIR,100);
                             lastNotificationTimeCO2=currentTime;
                         }
 
@@ -531,7 +414,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
                         Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
                         if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
-                            makeNotification("Noise Alert","Noise is over "+ String.valueOf(currentThreshold)+" dB","Your current environment  exceeds the threshold of "+String.valueOf(currentThreshold)+"dB you have set. ","SoundDialog");
+                            makeNotification("Noise Alert", "Noise is over " + currentThreshold + " dB", "Your current environment exceeds the threshold of " + currentThreshold + "dB you have set.", DIALOG_SOUND, 101);
                             lastNotificationTime = currentTime; // Update the last notification time
                         }
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
@@ -563,21 +446,30 @@ public class MainPageActivity<T> extends AppCompatActivity {
 
     }
 
-    private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_FINE_LOCATION);
-        } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                    PERMISSION_BLUETOOTH_CONNECT);
-        } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                    PERMISSION_POST_NOTIFICATIONS);
+    private boolean checkPermissions() {
+
+        List<String> permissionsNeeded = new ArrayList<>();
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            permissionsNeeded.add(Manifest.permission.ACCESS_COARSE_LOCATION);  // Assuming you want to request both together
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.BLUETOOTH_CONNECT);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+        // Add more permissions as needed
+
+        if (!permissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), REQUEST_ALL_PERMISSIONS);
+        }
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void enablebluetooth() {
@@ -656,43 +548,63 @@ public class MainPageActivity<T> extends AppCompatActivity {
             Log.e(Tag, "Error in readNextCharacteristic: " + e.getMessage());
         }
     }
+    private boolean checkBluetoothPermissions() {
+        boolean fineLocationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean bluetoothConnectGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
+        boolean bluetoothScanGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
 
+        return fineLocationGranted && bluetoothConnectGranted && bluetoothScanGranted;
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_BLUETOOTH_SCAN) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Tag, "Permission BLUETOOTH_SCAN Granted");
-                checkPermissions();
 
+        if (requestCode == REQUEST_ALL_PERMISSIONS) {
+            if (checkBluetoothPermissions()) {
+                initializeBluetooth();
+                Log.d(Tag, "Required Bluetooth permissions are granted");
             } else {
-                Log.d(Tag, "Permission BLUETOOTH_SCAN DENIED");
-//                showRationaleDialog("Bluetooth scan permission is necessary for scanning Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_SCAN);
+                // Explain to the user that Bluetooth permissions are necessary
+                Log.d(Tag, "Bluetooth permissions not granted");
+                showRationaleOrSettings();
             }
-
-
-        } else if (requestCode == PERMISSION_BLUETOOTH_CONNECT) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Tag, "Permission BLUETOOTH_CONNECT Granted");
-                checkScanningpermission();
-
-
-            } else {
-                Log.d(Tag, "PermissionBLUETOOTH_CONNECT DENIED ");
-//                showRationaleDialog("Bluetooth connect permission is necessary for connecting to Bluetooth devices. Please grant the permission to continue.", PERMISSION_BLUETOOTH_CONNECT);
-            }
-        } else if (requestCode == PERMISSION_POST_NOTIFICATIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Tag, "Permission POST_NOTIFICATIONS Granted");
-                // You may want to check or continue some action that requires this permission
-            } else {
-                Log.d(Tag, "Permission POST_NOTIFICATIONS DENIED");
-                // showRationaleDialog("Posting notifications permission is necessary. Please grant the permission to continue.", PERMISSION_POST_NOTIFICATIONS);
-            }
-
         }
     }
+    private void showRationaleOrSettings() {
+        boolean shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT)
+                || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_SCAN);
 
+        if (shouldShowRationale) {
+            // Show rationale and request permission again
+            showSettingsAlert();; // Method to show rationale dialog
+        } else {
+            // User denied with "Don't ask again". Direct them to settings.
+            showSettingsAlert();
+        }
+    }
+    private void showSettingsAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Permissions Required")
+                .setMessage("Bluetooth and Location services need to be granted for the app to function. Please go to settings to enable the permissions")
+                .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Send the user to the app's settings page
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                        // Consider closing the app or disabling functionality if permissions are essential
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
     public void stopReading() {
         shouldContinueReading = false;
         handler.removeCallbacksAndMessages(null); // Remove all callbacks and messages
@@ -705,6 +617,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 .setPositiveButton("Grant", (dialog, which) -> {
                     if (permissionRequestCode == PERMISSION_BLUETOOTH_SCAN) {
                         ActivityCompat.requestPermissions(MainPageActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, PERMISSION_BLUETOOTH_SCAN);
+
                     } else if (permissionRequestCode == PERMISSION_BLUETOOTH_CONNECT) {
                         ActivityCompat.requestPermissions(MainPageActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, PERMISSION_BLUETOOTH_CONNECT);
                     }
@@ -793,115 +706,24 @@ public class MainPageActivity<T> extends AppCompatActivity {
         });
 
     }
+    private static final String EXTRA_DIALOG_TYPE = "DialogType";
+    private static final String DIALOG_SOUND = "SoundDialog";
+    private static final String DIALOG_AIR = "AirDialog";
 
 
-    public <T> void sendDatatoServer(List<T>data){
-        Call<ResponseBody>call =RetrofitClient
-                .getInstance()
-                .getApi()
-                .AddSoundData(new DataSendRequest(data));
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String body=response.body().string();
-                    JSONObject jsonObj = new JSONObject(body);
-                    String message=jsonObj.getString("message");
-                    Toast.makeText(MainPageActivity.this,message,Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainPageActivity.this,t.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-    public <T> void sendDatatoServer(List<T>data,SendDataCallback callback ){
-        Call<ResponseBody>call =RetrofitClient
-                .getInstance()
-                .getApi()
-                .AddSoundData(new DataSendRequest(data));
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                try {
-                    String body=response.body().string();
-                    JSONObject jsonObj = new JSONObject(body);
-                    String message=jsonObj.getString("message");
-                    Toast.makeText(MainPageActivity.this,message,Toast.LENGTH_LONG).show();
-                    callback.onDataSent();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainPageActivity.this,t.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    public void  verifyAuthentication() {
-
-        Call<ResponseBody> call = RetrofitClient
-                .getInstance()
-                .getApi()
-                .isAuthorized();
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                boolean isAuthenticated;
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        String body = response.body().string();
-                        JSONObject jsonObj = new JSONObject(body);
-                        isAuthenticated= jsonObj.getBoolean("Authentication");
-                        if(!isAuthenticated)
-                            gotoMainActivity();
-                        Toast.makeText(MainPageActivity.this,String.valueOf(isAuthenticated),Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(MainPageActivity.this,"NullResponse",Toast.LENGTH_LONG).show();
-                    }
-
-
-                } catch (IOException e) {
-                    Toast.makeText(MainPageActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainPageActivity.this,t.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
-
-
-    }
     @Override
     protected void onNewIntent(Intent intent) {
-
         super.onNewIntent(intent);
-        Log.d(Tag,"NEW ITNENT4343");
         setIntent(intent);  // Important to ensure getIntent() returns the latest intent
-        if (intent.getBooleanExtra("SoundDialog", false)) {
-    SoundDataCollect.performClick();
-           Log.d(Tag,"NEW ITNENT");
+
+        String dialogType = intent.getStringExtra(EXTRA_DIALOG_TYPE);
+        if (DIALOG_SOUND.equals(dialogType)) {
+            SoundDataCollect.performClick();
+            Log.d(Tag, "NEW SOUND INTENT");
         }
-       else if (intent.getBooleanExtra("AirDialog", false)) {
+        else if (DIALOG_AIR.equals(dialogType)) {
             CO2DataCollect.performClick();
-            Log.d(Tag,"NEW ITNENT");
+            Log.d(Tag, "NEW AIR INTENT");
         }
     }
     public void gotoMainActivity(){
@@ -917,14 +739,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public void gotoSettingsPage(){
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
-    }
-
-    public void gotoLogout(){
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
 
     }
+
+
     private void showToast(String message) {
         if (currentToast != null) {
             currentToast.cancel();
@@ -932,120 +750,38 @@ public class MainPageActivity<T> extends AppCompatActivity {
         currentToast = Toast.makeText(MainPageActivity.this, message, Toast.LENGTH_SHORT);
         currentToast.show();
     }
-//    public void newNotification(String message){
-//        String channelID="Channel_ID_notifications";
-//        NotificationCompat.Builder builder=
-//                new NotificationCompat.Builder(getApplicationContext(),channelID);
-//        builder.setSmallIcon(R.drawable.logoleaf)
-//                .setContentTitle(message)
-//                .setAutoCancel(true)
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-//        Intent intent= new Intent(getApplicationContext(), MainPageActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        intent.putExtra("openDialog",true);
-//        PendingIntent pendingIntent= PendingIntent.getActivity(getApplicationContext(),0,intent,PendingIntent.FLAG_MUTABLE);
-//        builder.setContentIntent(pendingIntent);
-//        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel notificationChannel=notificationManager.getNotificationChannel(channelID);
-//            if(notificationChannel==null){
-//                int importance=NotificationManager.IMPORTANCE_HIGH;
-//                notificationChannel=new NotificationChannel(channelID,"Some Description",importance);
-//                notificationChannel.setLightColor(Color.GREEN);
-//                notificationChannel.enableVibration(true);
-//                notificationManager.createNotificationChannel(notificationChannel);
-//
-//            }
-//        }
-//        notificationManager.notify(0,builder.build());
-//    }
-    public void makeNotification(String title,String message,String expandedText, String Dialog) {
-        String channelID = "Channel_ID_notifications";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
-        builder.setSmallIcon(R.drawable.logoleaf)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
-        intent.putExtra(Dialog, true);
+public void makeNotification(String title, String message, String expandedText, String dialog, int ID) {
+    String channelID = "Channel_ID_notifications";
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID)
+            .setSmallIcon(R.drawable.logoleaf)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
+    Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
+    intent.putExtra(EXTRA_DIALOG_TYPE, dialog);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
-            if (notificationChannel == null) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
-                notificationChannel.setLightColor(Color.GREEN);
-                notificationChannel.enableVibration(true);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
+    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), ID, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+    builder.setContentIntent(pendingIntent);
+
+    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
+        if (notificationChannel == null) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
+            notificationChannel.setLightColor(Color.GREEN);
+            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
         }
-        notificationManager.notify(0, builder.build());
     }
-    public void makeNotification(String title,String message) {
-        String channelID = "Channel_ID_notifications";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
-        builder.setSmallIcon(R.drawable.logoleaf)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+    notificationManager.notify(ID, builder.build());
+}
 
-        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
-        intent.putExtra("openDialog", true);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
-            if (notificationChannel == null) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
-                notificationChannel.setLightColor(Color.GREEN);
-                notificationChannel.enableVibration(true);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-        }
-        notificationManager.notify(0, builder.build());
-    }
-    public void makeNotification(String title) {
-        String channelID = "Channel_ID_notifications";
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID);
-        builder.setSmallIcon(R.drawable.logoleaf)
-                .setContentTitle(title)
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
-        intent.putExtra("openDialog", true);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
-            if (notificationChannel == null) {
-                int importance = NotificationManager.IMPORTANCE_HIGH;
-                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
-                notificationChannel.setLightColor(Color.GREEN);
-                notificationChannel.enableVibration(true);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-        }
-        notificationManager.notify(0, builder.build());
-    }
 
 
     public void setAverageC02(String averageCO2){
