@@ -34,7 +34,13 @@
                 android:theme="?attr/actionBarTheme"
                 app:title="Daily Forecast" />
 
-
+            <Spinner
+                android:id="@+id/dynamic_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="60dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/SoundLevel"
                 android:layout_width="match_parent"

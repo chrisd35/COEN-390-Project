@@ -7,11 +7,15 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -30,6 +34,7 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -71,7 +76,42 @@ public class StatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         toggleButton = findViewById(R.id.toggleButton);
         toggleButton.setChecked(false); // Set to represent daily view by default
+        Spinner dynamicSpinner = findViewById(R.id.dynamic_spinner);
 
+        DataRetrieveWorker.getAllDatesFromServer(new DataRetrieveWorker.DataCallbackdates() {
+            @Override
+            public void onSuccess(List<String> dates) {
+                for (String date : dates) {
+                    Log.d("Staty",date);
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                        StatActivity.this, android.R.layout.simple_spinner_item, dates);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                dynamicSpinner.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(String message) {
+
+            }
+        });
+
+
+
+        dynamicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Get selected item
+                String selectedItem = parentView.getItemAtPosition(position).toString();
+                Toast.makeText(StatActivity.this, "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Code to handle when nothing is selected
+
+            }
+        });
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -104,7 +144,6 @@ public class StatActivity extends AppCompatActivity {
         // Instantiate ThresholdData
         thresholdData = new ThresholdData(this);
 
-
         refreshData(); // Initial data retrieval and graph update
 
 
@@ -135,10 +174,6 @@ public class StatActivity extends AppCompatActivity {
     }
 
     private void createThresholdLines(int soundThresholdValue, int vocThresholdValue, int co2ThresholdValue) {
-        // Define threshold values for each level graphs
-//        int soundThresholdValue = 3000;
-//        int vocThresholdValue = 1000;
-//        int co2ThresholdValue = 2000;
 
         // Define the color used for the threshold lines
         int color = Color.RED;
@@ -481,7 +516,84 @@ public class StatActivity extends AppCompatActivity {
         updateSoundLevelGraph(dummySoundData, dummyAccessTimes);
         updateVOCGraph(dummyVOCData, dummyAccessTimes);
         updateCO2Graph(dummyCO2Data, dummyAccessTimes);
+
+
+        // Correct skeleton that would be for retrieving weekly data
+//        DataRetrieveWorker.retrieveSoundDataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//            @Override
+//            public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
+//                // Log the data size of sound dataset
+//                Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
+//
+//                // Update sound level graph with the retrieved sound data
+//                updateSoundLevelGraph(soundDataList,accessTimeList);
+//
+//                // Update dataSize
+//                dataSize = soundDataList.size();
+//
+//                // Store sound threshold value
+//                soundThresholdValue = thresholdData.getSavedThreshold();
+//
+//                // Call method to retrieve VOC data
+//                DataRetrieveWorker.retrieveVOCDataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//                    @Override
+//                    public void onDataLoaded(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimeList) {
+//                        // Log the data size of VOC dataset
+//                        Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
+//
+//                        // Update VOC graph with the retrieved VOC data
+//                        updateVOCGraph(vocDataList,accessTimeList);
+//
+//                        // Update dataSize
+//                        dataSize = Math.max(dataSize, vocDataList.size());
+//
+//                        // Store VOC threshold value
+//                        vocThresholdValue = thresholdData.getSavedThreshold();
+//
+//                        // Call method to retrieve CO2 data
+//                        DataRetrieveWorker.retrieveCO2DataFromServer(date, new DataRetrieveWorker.DataCallback() {
+//                            @Override
+//                            public void onDataLoaded(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimeList) {
+//                                // Log the data size of CO2 dataset
+//                                Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
+//
+//                                // Update CO2 graph with the retrieved CO2 data
+//                                updateCO2Graph(co2DataList,accessTimeList);
+//
+//                                // Update dataSize
+//                                dataSize = Math.max(dataSize, co2DataList.size());
+//
+//                                // Store CO2 threshold value
+//                                co2ThresholdValue = thresholdData.getSavedThreshold();
+//
+//                                // Create threshold lines after updating dataSize
+//                                createThresholdLines(soundThresholdValue,vocThresholdValue,co2ThresholdValue);
+//                            }
+//
+//                            @Override
+//                            public void onFailure(String errorMessage) {
+//                                // Handle CO2 data retrieval failure
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onFailure(String errorMessage) {
+//                        // Handle VOC data retrieval failure
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void onFailure(String errorMessage) {
+//                // Handle sound data retrieval failure
+//            }
+//        });
     }
+
+
+
+
 
 
 
