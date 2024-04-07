@@ -7,11 +7,15 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -30,6 +34,7 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 
@@ -71,7 +76,42 @@ public class StatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         toggleButton = findViewById(R.id.toggleButton);
         toggleButton.setChecked(false); // Set to represent daily view by default
+        Spinner dynamicSpinner = findViewById(R.id.dynamic_spinner);
 
+        DataRetrieveWorker.getAllDatesFromServer(new DataRetrieveWorker.DataCallbackdates() {
+            @Override
+            public void onSuccess(List<String> dates) {
+                for (String date : dates) {
+                    Log.d("Staty",date);
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                        StatActivity.this, android.R.layout.simple_spinner_item, dates);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                dynamicSpinner.setAdapter(adapter);
+            }
+
+            @Override
+            public void onFailure(String message) {
+
+            }
+        });
+
+
+
+        dynamicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Get selected item
+                String selectedItem = parentView.getItemAtPosition(position).toString();
+                Toast.makeText(StatActivity.this, "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Code to handle when nothing is selected
+
+            }
+        });
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

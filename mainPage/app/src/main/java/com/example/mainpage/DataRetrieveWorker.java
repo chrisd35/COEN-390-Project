@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -25,13 +26,49 @@ public class DataRetrieveWorker {
 
         void onFailure(String errorMessage);
     }
-
-    public static void retrieveAllDataFromServer(DataCallback callback) {
+    public interface DataCallbackdates {
+        void onSuccess(List<String> dates);
+        void onFailure(String message);
+    }
+        public static void retrieveAllDataFromServer(DataCallback callback) {
         retrieveDataFromServer("sound", callback);
         retrieveDataFromServer("VOC", callback);
         retrieveDataFromServer("CO2", callback);
     }
 
+
+    public static void getAllDatesFromServer(final DataCallbackdates callback) {
+        RetrofitClient
+                .getInstance()
+                .getApi()
+                .getAllDates()
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        try {
+                            if (response.isSuccessful() && response.body() != null) {
+                                String responseBodyString = response.body().string();
+                                JSONObject jsonObject = new JSONObject(responseBodyString);
+                                JSONArray datesArray = jsonObject.getJSONArray("dates");
+                                List<String> dates = new ArrayList<>();
+                                for (int i = 0; i < datesArray.length(); i++) {
+                                    dates.add(datesArray.getString(i));
+                                }
+                                callback.onSuccess(dates);
+                            } else {
+                                callback.onFailure("Failed to retrieve dates");
+                            }
+                        } catch (IOException | JSONException e) {
+                            callback.onFailure(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        callback.onFailure(t.getMessage());
+                    }
+                });
+    }
     private static void retrieveDataFromServer(String dataType, DataCallback callback) {
         RetrofitClient
                 .getInstance()
