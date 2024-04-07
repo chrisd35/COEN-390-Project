@@ -79,7 +79,9 @@ public class DataRetrieveWorker {
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         try {
                             if (response.isSuccessful() && response.body() != null) {
-                                JSONArray datesArray = new JSONArray(response.body().string());
+                                String responseBodyString = response.body().string();
+                                JSONObject jsonObject = new JSONObject(responseBodyString);
+                                JSONArray datesArray = jsonObject.getJSONArray("dates");
                                 for (int i = 0; i < datesArray.length(); i++) {
                                     String date = datesArray.getString(i);
                                     switch (dataType) {
