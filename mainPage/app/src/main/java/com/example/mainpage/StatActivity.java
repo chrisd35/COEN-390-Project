@@ -34,6 +34,8 @@ import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -62,6 +64,7 @@ public class StatActivity extends AppCompatActivity {
     private int vocThresholdValue;
     private int co2ThresholdValue;
 
+   private String Chosendate;
     private ToggleButton toggleButton;
     private boolean isWeeklyView = false; // Default to daily view
 
@@ -88,6 +91,11 @@ public class StatActivity extends AppCompatActivity {
                         StatActivity.this, android.R.layout.simple_spinner_item, dates);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 dynamicSpinner.setAdapter(adapter);
+                int defaultPosition = 0; // or any position you want to be the default
+                dynamicSpinner.setSelection(defaultPosition);
+                Chosendate = dynamicSpinner.getItemAtPosition(defaultPosition).toString();
+                refreshData(); // Call your method to refresh data or execute other actions
+                Toast.makeText(StatActivity.this, "Default selected: " + Chosendate, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -103,13 +111,14 @@ public class StatActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // Get selected item
                 String selectedItem = parentView.getItemAtPosition(position).toString();
-                Toast.makeText(StatActivity.this, "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+                Chosendate=selectedItem;
+                refreshData();
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 // Code to handle when nothing is selected
-
             }
         });
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -125,6 +134,7 @@ public class StatActivity extends AppCompatActivity {
         soundLevelGraph = findViewById(R.id.SoundLevel);
         VOCGraph = findViewById(R.id.VOCQuality);
         CO2Graph = findViewById(R.id.CO2Quality);
+
 
         // Define empty series initially
         soundLevelDataSeries = new LineGraphSeries<>();
@@ -144,7 +154,7 @@ public class StatActivity extends AppCompatActivity {
         // Instantiate ThresholdData
         thresholdData = new ThresholdData(this);
 
-        refreshData(); // Initial data retrieval and graph update
+         // Initial data retrieval and graph update
 
 
 
@@ -162,7 +172,7 @@ public class StatActivity extends AppCompatActivity {
     }
 
     private void refreshData() {
-        String date = "2024-04-05"; // Default date, can be updated based on user interaction
+        String date = Chosendate; // Default date, can be updated based on user interaction
 
         if (!isWeeklyView) { // Prioritize daily view
             // Fetch daily data
@@ -173,12 +183,12 @@ public class StatActivity extends AppCompatActivity {
         }
     }
 
-    private void createThresholdLines(int soundThresholdValue, int vocThresholdValue, int co2ThresholdValue) {
+    private void createThresholdLines(int soundThresholdValue) {
 
         // Define the color used for the threshold lines
         int color = Color.RED;
 
-        // Establish threshold line for sound level graph
+        if(soundThresholdValue==0)
         thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, soundThresholdValue),
                 new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
@@ -187,20 +197,11 @@ public class StatActivity extends AppCompatActivity {
         soundLevelGraph.addSeries(thresholdSoundLine);
 
         // Establish threshold line for VOC graph
-        thresholdVOCLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, vocThresholdValue),
-                new DataPoint(dataSize - 1, vocThresholdValue) // Adjust dataSize - 1 according to your data size
-        });
-        setDashedLine(thresholdVOCLine, color);
-        VOCGraph.addSeries(thresholdVOCLine);
+
 
         // Establish threshold line for CO2 graph
-        thresholdCO2Line = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, co2ThresholdValue),
-                new DataPoint(dataSize - 1, co2ThresholdValue) // Adjust dataSize - 1 according to your data size
-        });
-        setDashedLine(thresholdCO2Line, color);
-        CO2Graph.addSeries(thresholdCO2Line);
+
+
     }
 
     private void setDashedLine(LineGraphSeries<DataPoint> series, int color) {
@@ -217,6 +218,13 @@ public class StatActivity extends AppCompatActivity {
 
     private void updateSoundLevelGraph(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimes) {
         try {
+            Log.d("StatActivity", "UpdatedGraphSound Data Loaded: " + soundDataList.size());
+            Log.d("StatActivity", "UPdatedGraphAccSound Data Loaded: " +accessTimes.size());
+            if (soundDataList.isEmpty() || accessTimes.isEmpty()) {
+                // Handle the case where there is no data, perhaps clear the graph or display a message
+                soundLevelDataSeries.resetData(new DataPoint[]{}); // Clear the graph
+                return; // Stop further processing
+            }
             if (soundDataList.size() != accessTimes.size()) {
                 throw new IllegalArgumentException("The size of sound data and access times must be the same");
             }
@@ -224,55 +232,72 @@ public class StatActivity extends AppCompatActivity {
                 AccessTime baseTime = accessTimes.get(0);
                 baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
             }
+            Log.d("StatActivity","UP RENDERING");
             DataPoint[] soundLevelDataPoints = new DataPoint[soundDataList.size()];
             AccessTime baseTime = accessTimes.get(0);
             AccessTime lastTime = accessTimes.get(accessTimes.size() - 1);
             double baseTimeInSeconds = baseTime.getHour() * 3600 + baseTime.getMinute() * 60 + baseTime.getSecond();
             double lastTimeInSeconds = lastTime.getHour() * 3600 + lastTime.getMinute() * 60 + lastTime.getSecond();
             double totalTimeSpan = lastTimeInSeconds - baseTimeInSeconds;
-
+            Log.d("StatActivity","IN BetweenUP RENDERING");
             for (int i = 0; i < soundDataList.size(); i++) {
                 AccessTime at = accessTimes.get(i);
                 double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
                 double timeOffset = timeInSeconds - baseTimeInSeconds;
                 soundLevelDataPoints[i] = new DataPoint(timeOffset, soundDataList.get(i));
             }
-
-            soundLevelDataSeries.resetData(soundLevelDataPoints);
-
-            soundLevelDataSeries.setDrawDataPoints(true);
-            soundLevelDataSeries.setDataPointsRadius(10);
-
-            soundLevelGraph.getViewport().setMinX(soundLevelDataPoints[0].getX());
-            soundLevelGraph.getViewport().setMaxX(soundLevelDataPoints[soundDataList.size() - 1].getX());
-            soundLevelGraph.getViewport().setScrollable(true);
-            soundLevelGraph.getViewport().setScalable(true);
-
-            GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
-            glrSound.setNumHorizontalLabels(5);
-
-            double labelInterval = totalTimeSpan / 4; // 4 intervals for 5 labels
-
-            soundLevelGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
-                @Override
-                public String formatLabel(double value, boolean isValueX) {
-                    if (isValueX) {
-                        double adjustedValue = baseTimeInSeconds + value;
-                        // Check if the value is close to one of the label positions
-                        for (int i = 0; i <= 4; i++) {
-                            double labelTimeInSeconds = baseTimeInSeconds + (labelInterval * i);
-                            if (Math.abs(adjustedValue - labelTimeInSeconds) < (labelInterval / 2)) {
-                                int hours = (int) (labelTimeInSeconds / 3600);
-                                int minutes = (int) ((labelTimeInSeconds % 3600) / 60);
-                                return String.format("%02d:%02d", hours, minutes);
-                            }
-                        }
-                        return ""; // Return empty string to not draw the label
-                    } else {
-                        return super.formatLabel(value, false);
+            try {
+                Log.d("StatActivity","afterloop");
+                Arrays.sort(soundLevelDataPoints, new Comparator<DataPoint>() {
+                    @Override
+                    public int compare(DataPoint dp1, DataPoint dp2) {
+                        return Double.compare(dp1.getX(), dp2.getX());
                     }
-                }
-            });
+                });
+                soundLevelDataSeries.resetData(soundLevelDataPoints);
+                Log.d("StatActivity","afterreset");
+                soundLevelDataSeries.setDrawDataPoints(true);
+                soundLevelDataSeries.setDataPointsRadius(10);
+                Log.d("StatActivity","radius");
+
+                soundLevelGraph.getViewport().setMinX(soundLevelDataPoints[0].getX());
+                soundLevelGraph.getViewport().setMaxX(soundLevelDataPoints[soundDataList.size() - 1].getX());
+                soundLevelGraph.getViewport().setScrollable(true);
+                soundLevelGraph.getViewport().setScalable(true);
+                Log.d("StatActivity","scal");
+                GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
+                glrSound.setNumHorizontalLabels(5);
+                glrSound.setPadding(85);
+                Log.d("StatActivity","rendererl");
+                double labelInterval = totalTimeSpan / 4; // 4 intervals for 5 labels
+                Log.d("StatActivity","OUTSIDE RENDERING");
+                soundLevelGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
+                    @Override
+                    public String formatLabel(double value, boolean isValueX) {
+                        if (isValueX) {
+                            double adjustedValue = baseTimeInSeconds + value;
+                            // Check if the value is close to one of the label positions
+                            for (int i = 0; i <= 4; i++) {
+                                double labelTimeInSeconds = baseTimeInSeconds + (labelInterval * i);
+                                if (Math.abs(adjustedValue - labelTimeInSeconds) < (labelInterval / 2)) {
+                                    int hours = (int) (labelTimeInSeconds / 3600);
+                                    int minutes = (int) ((labelTimeInSeconds % 3600) / 60);
+                                    Log.d("StatActivity",String.format("%02d:%02d", hours, minutes));
+                                    Log.d("StatActivity","REnderer");
+                                    return String.format("%02d:%02d", hours, minutes);
+                                }
+                            }
+                            return ""; // Return empty string to not draw the label
+                        } else {
+                            return super.formatLabel(value, false);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("StatActivity", "Error in updateSoundLevelGraph", e);
+                e.printStackTrace();
+            }
+
             soundLevelDataSeries.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series soundLevelDataSeries, DataPointInterface dataPoint) {
@@ -293,6 +318,11 @@ public class StatActivity extends AppCompatActivity {
 
     private void updateVOCGraph(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimes) {
         try {
+            if (vocDataList.isEmpty() || accessTimes.isEmpty()) {
+                // Handle the case where there is no data, perhaps clear the graph or display a message
+               VOCDataSeries.resetData(new DataPoint[]{}); // Clear the graph
+                return; // Stop further processing
+            }
             if (vocDataList.size() != accessTimes.size()) {
                 throw new IllegalArgumentException("The size of VOC data and access times must be the same");
             }
@@ -308,7 +338,12 @@ public class StatActivity extends AppCompatActivity {
                 double timeOffset = timeInSeconds - baseTimeInSeconds;
                 vocDataPoints[i] = new DataPoint(timeOffset, vocDataList.get(i));
             }
-
+            Arrays.sort(vocDataPoints, new Comparator<DataPoint>() {
+                @Override
+                public int compare(DataPoint dp1, DataPoint dp2) {
+                    return Double.compare(dp1.getX(), dp2.getX());
+                }
+            });
             VOCDataSeries.resetData(vocDataPoints);
 
             VOCDataSeries.setDrawDataPoints(true);
@@ -321,7 +356,7 @@ public class StatActivity extends AppCompatActivity {
 
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
             glrVOC.setNumHorizontalLabels(5);
-
+            glrVOC.setPadding(85);
             VOCGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
                 @Override
                 public String formatLabel(double value, boolean isValueX) {
@@ -356,6 +391,11 @@ public class StatActivity extends AppCompatActivity {
 
     private void updateCO2Graph(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimes) {
         try {
+            if (co2DataList.isEmpty() || accessTimes.isEmpty()) {
+                // Handle the case where there is no data, perhaps clear the graph or display a message
+                CO2DataSeries.resetData(new DataPoint[]{}); // Clear the graph
+                return; // Stop further processing
+            }
             if (co2DataList.size() != accessTimes.size()) {
                 throw new IllegalArgumentException("The size of CO2 data and access times must be the same");
             }
@@ -371,7 +411,12 @@ public class StatActivity extends AppCompatActivity {
                 double timeOffset = timeInSeconds - baseTimeInSeconds;
                 co2DataPoints[i] = new DataPoint(timeOffset, co2DataList.get(i));
             }
-
+            Arrays.sort(co2DataPoints, new Comparator<DataPoint>() {
+                @Override
+                public int compare(DataPoint dp1, DataPoint dp2) {
+                    return Double.compare(dp1.getX(), dp2.getX());
+                }
+            });
             CO2DataSeries.resetData(co2DataPoints);
 
             CO2DataSeries.setDrawDataPoints(true);
@@ -384,7 +429,7 @@ public class StatActivity extends AppCompatActivity {
 
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
             glrCO2.setNumHorizontalLabels(5);
-
+            glrCO2.setPadding(85);
             CO2Graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
                 @Override
                 public String formatLabel(double value, boolean isValueX) {
@@ -424,15 +469,29 @@ public class StatActivity extends AppCompatActivity {
             public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
                 // Log the data size of sound dataset
                 Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
+                Log.d("StatActivity", "AccSound Data Loaded: " +accessTimeList.size());
 
                 // Update sound level graph with the retrieved sound data
                 updateSoundLevelGraph(soundDataList,accessTimeList);
+                try {
+
+                    dataSize = soundDataList.size();
+
+                    // Store sound threshold value
+                    if(thresholdData.ThresholdExist())
+                        soundThresholdValue = thresholdData.getSavedThreshold();
+                }catch (IndexOutOfBoundsException e)
+                {
+                    Log.d("StatActivity", e.getMessage() );
+                }
+                catch (Exception e)
+                {
+                    Log.d("StatActivity", e.getMessage() );
+                }
+
 
                 // Update dataSize
-                dataSize = soundDataList.size();
 
-                // Store sound threshold value
-                soundThresholdValue = thresholdData.getSavedThreshold();
 
                 // Call method to retrieve VOC data
                 DataRetrieveWorker.retrieveVOCDataFromServer(date, new DataRetrieveWorker.DataCallback() {
@@ -440,15 +499,26 @@ public class StatActivity extends AppCompatActivity {
                     public void onDataLoaded(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimeList) {
                         // Log the data size of VOC dataset
                         Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
-
+                        Log.d("StatActivity", "AccVOCData Loaded: " +accessTimeList.size());
                         // Update VOC graph with the retrieved VOC data
                         updateVOCGraph(vocDataList,accessTimeList);
+                        try {
+                            dataSize = Math.max(dataSize, vocDataList.size());
+
+                            // Store VOC threshold value
+
+                        }catch (IndexOutOfBoundsException e)
+                        {
+                            Log.d("StatActivity", e.getMessage() );
+                        }
+                        catch (Exception e)
+                        {
+                            Log.d("StatActivity", e.getMessage() );
+                        }
+
 
                         // Update dataSize
-                        dataSize = Math.max(dataSize, vocDataList.size());
 
-                        // Store VOC threshold value
-                        vocThresholdValue = thresholdData.getSavedThreshold();
 
                         // Call method to retrieve CO2 data
                         DataRetrieveWorker.retrieveCO2DataFromServer(date, new DataRetrieveWorker.DataCallback() {
@@ -456,18 +526,33 @@ public class StatActivity extends AppCompatActivity {
                             public void onDataLoaded(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimeList) {
                                 // Log the data size of CO2 dataset
                                 Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
-
-                                // Update CO2 graph with the retrieved CO2 data
+                                Log.d("StatActivity", "Accco2Data Loaded: " +accessTimeList.size());
                                 updateCO2Graph(co2DataList,accessTimeList);
+                                // Update CO2 graph with the retrieved CO2 data
+                                try {
+                                    dataSize = Math.max(dataSize, co2DataList.size());
+
+                                    if(thresholdData.ThresholdExist())
+                                    createThresholdLines(soundThresholdValue);
+
+                                }catch (IndexOutOfBoundsException e)
+                                {
+                                    Log.d("StatActivity", e.getMessage() );
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.d("StatActivity", e.getMessage() );
+                                }
+
 
                                 // Update dataSize
-                                dataSize = Math.max(dataSize, co2DataList.size());
+
 
                                 // Store CO2 threshold value
-                                co2ThresholdValue = thresholdData.getSavedThreshold();
+
 
                                 // Create threshold lines after updating dataSize
-                                createThresholdLines(soundThresholdValue,vocThresholdValue,co2ThresholdValue);
+
                             }
 
                             @Override
