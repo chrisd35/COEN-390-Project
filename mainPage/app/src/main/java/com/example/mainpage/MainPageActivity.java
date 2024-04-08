@@ -760,8 +760,8 @@ public void makeNotification(String title, String message, String expandedText, 
             .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-    Intent intent = new Intent(getApplicationContext(), MainPageActivity.class);
+    Class<?> activityClass = authentication.isAuthenticated()? MainPageActivity.class : MainActivity.class;
+    Intent intent = new Intent(getApplicationContext(), activityClass);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
     intent.putExtra(EXTRA_DIALOG_TYPE, dialog);
 

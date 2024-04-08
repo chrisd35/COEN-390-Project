@@ -3,6 +3,7 @@ package com.example.mainpage;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +26,8 @@ public class Authentication {
 
         void onFailure(String errorMessage);
     }
+    private static final String SHARED_PREFS_NAME = "AppPrefs";
+    private static final String AUTH_KEY = "Authentication";
     private Context context;
 
     public Authentication(Context context) {
@@ -48,6 +51,7 @@ public class Authentication {
                             JSONObject jsonObj = new JSONObject(body);
                             isAuthenticated = jsonObj.getBoolean("Authentication");
                             message=jsonObj.getString("message");
+                            setAuthenticated(isAuthenticated);
                             if (!isAuthenticated)
                                 gotoMainActivity();
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -74,6 +78,17 @@ public class Authentication {
 
 
     }
+    public boolean isAuthenticated() {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(AUTH_KEY, false);  // Default to false if not found
+    }
+
+    private void setAuthenticated(boolean isAuthenticated) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(AUTH_KEY, isAuthenticated);
+        editor.apply();
+    }
     public void verifyAuthentication() {
         Log.d("HardBLE","FHfdfsdfsdffdbfjd");
         Call<ResponseBody> call = RetrofitClient
@@ -90,7 +105,7 @@ public class Authentication {
                         String body = response.body().string();
                         JSONObject jsonObj = new JSONObject(body);
                         isAuthenticated = jsonObj.getBoolean("Authentication");
-
+                        setAuthenticated(isAuthenticated);
                         if (!isAuthenticated) {
                             gotoMainActivity();
                             Toast.makeText(context, "You need to log in again", Toast.LENGTH_LONG).show();
