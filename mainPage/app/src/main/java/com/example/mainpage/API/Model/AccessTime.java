@@ -22,4 +22,17 @@ public class AccessTime {
         this.minute = minute;
         this.second = second;
     }
+
+    public class WeeklyAccessTime extends AccessTime {
+        private int dayOfWeek;
+
+        public WeeklyAccessTime(int hour, int minute, int second, int dayOfWeek) {
+            super(hour, minute, second); // Call parent class constructor
+            this.dayOfWeek = dayOfWeek;
+        }
+
+        public int getDayOfWeek() {
+            return dayOfWeek;
+        }
+    }
 }

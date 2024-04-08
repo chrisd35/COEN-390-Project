@@ -33,11 +33,15 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.OnDataPointTapListener;
 import com.jjoe64.graphview.series.Series;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class StatActivity extends AppCompatActivity {
@@ -188,8 +192,8 @@ public class StatActivity extends AppCompatActivity {
         // Define the color used for the threshold lines
         int color = Color.RED;
 
-        if(soundThresholdValue==0)
-        thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
+        if(soundThresholdValue != 0)
+            thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, soundThresholdValue),
                 new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
         });
@@ -533,7 +537,7 @@ public class StatActivity extends AppCompatActivity {
                                     dataSize = Math.max(dataSize, co2DataList.size());
 
                                     if(thresholdData.ThresholdExist())
-                                    createThresholdLines(soundThresholdValue);
+                                        createThresholdLines(soundThresholdValue);
 
                                 }catch (IndexOutOfBoundsException e)
                                 {
@@ -578,102 +582,112 @@ public class StatActivity extends AppCompatActivity {
 
     // Retrieves the weekly data
     // Right now, it is setup to only display dummy data
+//    private void retrieveWeeklyData(String date) {
+//        // Generate dummy data for a week with a loop
+//        ArrayList<Double> dummySoundData = new ArrayList<>();
+//        ArrayList<Double> dummyVOCData = new ArrayList<>();
+//        ArrayList<Double> dummyCO2Data = new ArrayList<>();
+//        ArrayList<AccessTime> dummyAccessTimes = new ArrayList<>();
+//
+//        Random random = new Random();
+//        for (int i = 0; i < 7; i++) {
+//            // Generate random data points for each day
+//            dummySoundData.add((double) random.nextInt(100)); // Adjust range as needed
+//            dummyVOCData.add((double) random.nextInt(500)); // Adjust range as needed
+//            dummyCO2Data.add((double) random.nextInt(1000)); // Adjust range as needed
+//
+//            // Create dummy access times (replace with actual implementation)
+//            // Ensure AccessTime handles weekly data appropriately (e.g., by storing a day index)
+//            dummyAccessTimes.add(new AccessTime(i, 0, 0)); // Example for day-based access times
+//        }
+//
+//        // Update level graphs with weekly dummy data
+//        updateSoundLevelGraph(dummySoundData, dummyAccessTimes);
+//        updateVOCGraph(dummyVOCData, dummyAccessTimes);
+//        updateCO2Graph(dummyCO2Data, dummyAccessTimes);
+//
+//
+//    }
+
     private void retrieveWeeklyData(String date) {
-        // Generate dummy data for a week with a loop
-        ArrayList<Double> dummySoundData = new ArrayList<>();
-        ArrayList<Double> dummyVOCData = new ArrayList<>();
-        ArrayList<Double> dummyCO2Data = new ArrayList<>();
-        ArrayList<AccessTime> dummyAccessTimes = new ArrayList<>();
-
-        Random random = new Random();
-        for (int i = 0; i < 7; i++) {
-            // Generate random data points for each day
-            dummySoundData.add((double) random.nextInt(100)); // Adjust range as needed
-            dummyVOCData.add((double) random.nextInt(500)); // Adjust range as needed
-            dummyCO2Data.add((double) random.nextInt(1000)); // Adjust range as needed
-
-            // Create dummy access times (replace with actual implementation)
-            // Ensure AccessTime handles weekly data appropriately (e.g., by storing a day index)
-            dummyAccessTimes.add(new AccessTime(i, 0, 0)); // Example for day-based access times
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTimeInMillis(new SimpleDateFormat("yyyy-MM-dd").parse(date).getTime());
+        } catch (ParseException e) {
+            // Handle parsing exception (e.g., log the error, use a default date)
+            e.printStackTrace();
         }
 
-        // Update level graphs with weekly dummy data
-        updateSoundLevelGraph(dummySoundData, dummyAccessTimes);
-        updateVOCGraph(dummyVOCData, dummyAccessTimes);
-        updateCO2Graph(dummyCO2Data, dummyAccessTimes);
+        ArrayList<Double> soundDataList = new ArrayList<>();
+        ArrayList<Double> vocDataList = new ArrayList<>();
+        ArrayList<Double> co2DataList = new ArrayList<>();
+        ArrayList<AccessTime> accessTimes = new ArrayList<>();
 
+        // Counter to track the number of data retrieval operations completed
+        AtomicInteger dataRetrievalCounter = new AtomicInteger(0);
 
-        // Correct skeleton that would be for retrieving weekly data
-//        DataRetrieveWorker.retrieveSoundDataFromServer(date, new DataRetrieveWorker.DataCallback() {
-//            @Override
-//            public void onDataLoaded(ArrayList<Double> soundDataList, ArrayList<AccessTime> accessTimeList) {
-//                // Log the data size of sound dataset
-//                Log.d("StatActivity", "Sound Data Loaded: " + soundDataList.size());
-//
-//                // Update sound level graph with the retrieved sound data
-//                updateSoundLevelGraph(soundDataList,accessTimeList);
-//
-//                // Update dataSize
-//                dataSize = soundDataList.size();
-//
-//                // Store sound threshold value
-//                soundThresholdValue = thresholdData.getSavedThreshold();
-//
-//                // Call method to retrieve VOC data
-//                DataRetrieveWorker.retrieveVOCDataFromServer(date, new DataRetrieveWorker.DataCallback() {
-//                    @Override
-//                    public void onDataLoaded(ArrayList<Double> vocDataList, ArrayList<AccessTime> accessTimeList) {
-//                        // Log the data size of VOC dataset
-//                        Log.d("StatActivity", "VOC Data Loaded: " + vocDataList.size());
-//
-//                        // Update VOC graph with the retrieved VOC data
-//                        updateVOCGraph(vocDataList,accessTimeList);
-//
-//                        // Update dataSize
-//                        dataSize = Math.max(dataSize, vocDataList.size());
-//
-//                        // Store VOC threshold value
-//                        vocThresholdValue = thresholdData.getSavedThreshold();
-//
-//                        // Call method to retrieve CO2 data
-//                        DataRetrieveWorker.retrieveCO2DataFromServer(date, new DataRetrieveWorker.DataCallback() {
-//                            @Override
-//                            public void onDataLoaded(ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimeList) {
-//                                // Log the data size of CO2 dataset
-//                                Log.d("StatActivity", "CO2 Data Loaded: " + co2DataList.size());
-//
-//                                // Update CO2 graph with the retrieved CO2 data
-//                                updateCO2Graph(co2DataList,accessTimeList);
-//
-//                                // Update dataSize
-//                                dataSize = Math.max(dataSize, co2DataList.size());
-//
-//                                // Store CO2 threshold value
-//                                co2ThresholdValue = thresholdData.getSavedThreshold();
-//
-//                                // Create threshold lines after updating dataSize
-//                                createThresholdLines(soundThresholdValue,vocThresholdValue,co2ThresholdValue);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(String errorMessage) {
-//                                // Handle CO2 data retrieval failure
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onFailure(String errorMessage) {
-//                        // Handle VOC data retrieval failure
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onFailure(String errorMessage) {
-//                // Handle sound data retrieval failure
-//            }
-//        });
+        // Define a callback to handle completion of all data retrieval operations
+        Runnable allDataRetrievedCallback = () -> {
+            // Check if all data retrieval operations are completed
+            if (dataRetrievalCounter.get() == 7) {
+                // Call updateWeeklyData with the accumulated data
+                updateWeeklyData(soundDataList, vocDataList, co2DataList, accessTimes);
+            }
+        };
+
+        for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+            calendar.add(Calendar.DAY_OF_YEAR, dayOfWeek);
+            String dailyDate = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+
+            // Retrieve sound data for the current day
+            DataRetrieveWorker.retrieveSoundDataFromServer(dailyDate, new DataRetrieveWorker.DataCallback() {
+                @Override
+                public void onDataLoaded(ArrayList<Double> dailySoundData, ArrayList<AccessTime> dailyAccessTimes) {
+                    // Calculate the daily sound average and add it to the list
+                    double dailySoundAverage = calculateAverage(dailySoundData);
+                    soundDataList.add(dailySoundAverage);
+
+                    // Increment the data retrieval counter
+                    dataRetrievalCounter.incrementAndGet();
+
+                    // Check if all data retrieval operations are completed
+                    allDataRetrievedCallback.run();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    // Handle sound data retrieval failure
+                    // Increment the data retrieval counter
+                    dataRetrievalCounter.incrementAndGet();
+
+                    // Check if all data retrieval operations are completed
+                    allDataRetrievedCallback.run();
+                }
+            });
+
+            // Retrieve VOC data for the current day (similar logic as sound data retrieval)
+
+            // Retrieve CO2 data for the current day (similar logic as sound data retrieval)
+        }
+    }
+
+    private double calculateAverage(ArrayList<Double> data) {
+        double sum = 0;
+        for (double value : data) {
+            sum += value;
+        }
+        return sum / data.size();
+    }
+
+    private void updateWeeklyData(ArrayList<Double> soundDataList, ArrayList<Double> vocDataList, ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimes) {
+        // Update the sound level graph
+        updateSoundLevelGraph(soundDataList, accessTimes);
+
+        // Update the VOC graph
+        updateVOCGraph(vocDataList, accessTimes);
+
+        // Update the CO2 graph
+        updateCO2Graph(co2DataList, accessTimes);
     }
 
 
