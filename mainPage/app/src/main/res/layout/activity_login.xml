@@ -13,6 +13,7 @@
         android:layout_width="253dp"
         android:layout_height="70dp"
         android:backgroundTint="@color/buttonTint"
+        android:backgroundTintMode="src_in"
         android:text="Login"
         android:textColor="@color/buttonTextColor"
         android:textSize="20sp"
@@ -78,15 +79,20 @@
         app:srcCompat="@drawable/welcome"
         tools:layout_editor_absoluteX="6dp" />
 
-    <TextView
+    <ImageButton
         android:id="@+id/ForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Forgot password ?"
+        android:layout_width="160dp"
+        android:layout_height="44dp"
+        android:backgroundTint="@color/background"
+        android:backgroundTintMode="src_over"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toTopOf="@+id/loginButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passwordLoginEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordLoginEditText"
+        app:layout_constraintVertical_bias="0.154"
+        app:srcCompat="@drawable/forgot_password" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.mainpage;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,13 +28,20 @@ import retrofit2.Response;
 
 public class SendResetPassword extends AppCompatActivity {
 
+    protected Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_reset_password);
+        toolbar = findViewById(R.id.loginPageToolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         Button sendButton= findViewById(R.id.button);
         EditText inputText=findViewById(R.id.editTextText);
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +99,11 @@ public class SendResetPassword extends AppCompatActivity {
     private void gotoLogin(){
         Intent intent = new Intent(this, loginActivity.class);
         startActivity(intent);
-
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
 }

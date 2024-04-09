@@ -37,7 +37,7 @@
                 android:text=" " />
 
             <TextView
-                android:layout_width="398dp"
+                android:layout_width="498dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingStart="16dp"
@@ -58,7 +58,7 @@
                 android:text=" " />
 
             <TextView
-                android:layout_width="400dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="start|end"
                 android:paddingStart="10dp"
@@ -73,12 +73,15 @@
                 android:gravity="start|end"
                 android:text="The air around us may seem invisible, however, it is crucial to our health and safety. The air quality can be measured by the CO2 Level (in ppm) and the VOC Levels (in ppb):"
                 android:textColor="@color/TextViewColor" />
+
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="290dp"
+                android:layout_height="273dp"
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/co2_table" />
+                android:padding="20dp"
+                app:srcCompat="@drawable/table_data" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
