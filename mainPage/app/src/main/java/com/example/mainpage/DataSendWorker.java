@@ -58,7 +58,8 @@ public class DataSendWorker extends Worker {
                 MainPageActivity.Co2data.clear();
                 MainPageActivity.Co2dataTime.clear();
             }
-            Log.d(TAG, "All data sent and cleared successfully.");
+            Log.d(TAG, "All data sent and cleared successfully. ");
+            Log.d(TAG, currentDate);
             return Result.success();
         } else {
             return Result.retry();
