@@ -34,13 +34,13 @@ public class DialogFragment extends androidx.fragment.app.DialogFragment {
             C02amount.setText("CO2: " + main.getAverageCO2() + " ppm");
             VOCamount.setText("VOC: " + main.getAverageVOC() + " ppb");
 
-            if (Double.parseDouble(main.getAverageCO2()) >= 1100 && Double.parseDouble(main.getAverageCO2()) < 1500 ) {
+            if ((Double.parseDouble(main.getAverageCO2()) >= 1100 && Double.parseDouble(main.getAverageCO2()) < 1500 ) || (Double.parseDouble(main.getAverageVOC()) >= 51 && Double.parseDouble(main.getAverageVOC()) < 100 )) {
                 alertImage.setImageResource(R.drawable.yellowwarning);
                 level.setText("MEDIOCRE");
                 message.setText("Contaminated indoor air. Ventilation is recommended.");
             }
 
-            else if (Double.parseDouble(main.getAverageCO2()) >= 1600) {
+            else if ((Double.parseDouble(main.getAverageCO2()) >= 1600) || (Double.parseDouble(main.getAverageVOC()) >= 101) ){
                 alertImage.setImageResource(R.drawable.redwarning);
                 level.setText("BAD");
                 message.setText("Heavily contaminated indoor air. Ventilation is required.");

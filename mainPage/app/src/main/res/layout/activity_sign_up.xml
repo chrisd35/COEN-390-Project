@@ -52,15 +52,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.578" />
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="387dp"
-        android:layout_height="125dp"
-        android:layout_marginBottom="32dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toTopOf="@+id/usernameLoginEditText"
-        app:srcCompat="@drawable/your_paragraph_text"
-        tools:layout_editor_absoluteX="8dp" />
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/loginPageToolbar"
         android:layout_width="match_parent"
@@ -73,4 +65,5 @@
         app:title="   "
         app:titleTextColor="@color/ToolbarTextColor"
         tools:layout_editor_absoluteX="186dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
