@@ -83,7 +83,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static int hour;
     public static int minutes;
     private long lastNotificationTime = 0;
-  ;
+    ;
     private static final long NOTIFICATION_DELAY = 900000;
     private long lastNotificationTimeCO2 = 0;
     ;
@@ -110,7 +110,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private UUID currentReadingCharacteristicUUID;
     private static final String serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
     private static final String CharacteristicOneUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-    private static final String CharacteristicTwoUUID = "beb5483e-36e1-4688-b7f5-ea07361b27a9";
+    private static final String CharacteristicTwoUUID = "beb5483e-36e1-4688-b7f5-ea07361b27a9" ;
     private static final String CharacteristicThreeUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
     private static final long READ_INTERVAL_MS = 1000;
     static ArrayList<Integer> Co2data = new ArrayList<Integer>();
@@ -155,7 +155,7 @@ public class MainPageActivity<T> extends AppCompatActivity {
                 //take the "instanteous" reading of the sound leve, by taking the five last element and averaging
                 int size = Sounddata.size();
                 // Start from the fifth-to-last element if there are at least five elements
-                int start = Math.max(0, size - 5);
+                int start = Math.max(0, size - 3);
                 int sum = 0;
                 int count = 0;
 
@@ -294,10 +294,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
         }
 
         try {
-           if(checkPermissions())
-            bluetoothLeScanner.startScan(scanCallback);
+            if(checkPermissions())
+                bluetoothLeScanner.startScan(scanCallback);
             else{
-               Log.e(Tag, "requiredPermission");
+                Log.e(Tag, "requiredPermission");
             }
         }catch (Exception e) {
             Log.e(Tag, e.getMessage());
@@ -338,9 +338,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
 //let user know when connected
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     runOnUiThread(() -> showToast("Connected to ESP32"));
-                     now=LocalTime.now();
-                     hour=now.getHour();
-                     minutes=now.getMinute();
+                    now=LocalTime.now();
+                    hour=now.getHour();
+                    minutes=now.getMinute();
                     if (ActivityCompat.checkSelfPermission(MainPageActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                         checkPermissions();
                         return;
@@ -396,34 +396,44 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         Co2dataTime.add(accessTime);
                         long currentTime = System.currentTimeMillis();
                         if(intValue>1000 && intValue<1500 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)) {
+                            Log.d(Tag,"Send Notification for CO2 Not urgent");
                             makeNotification("Air Quality Alert", "CO2 is over 1000 ppm", "Our sensors detected a high concentration of CO2 in your environment", DIALOG_AIR, 100);
-                        lastNotificationTimeCO2=currentTime;
+                            lastNotificationTimeCO2=currentTime;
                         }
-                        else if(intValue<1600 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)){
+                        else if(intValue>1600 && (currentTime - lastNotificationTimeCO2 > NOTIFICATION_DELAYCO2)){
+                            Log.d(Tag,"Send Notification for CO2 urgent");
                             makeNotification(" Urgent Air Quality Alert", "CO2 is over 1600 ppm ", "Our sensors detected a concentration of CO2 in your environment above the safety level ",DIALOG_AIR,100);
                             lastNotificationTimeCO2=currentTime;
                         }
-
+                        Log.d(Tag,"CO2 "+ String.valueOf(intValue));
                     }
                     else if (characteristic.getUuid().toString().equals(CharacteristicTwoUUID)) {
-                        Sounddata.add(intValue);
-                        SounddataTime.add(accessTime);
-                        long currentTime = System.currentTimeMillis();
-                        int currentThreshold = thresholdData.getSavedThreshold();
-                        boolean thresholdDataexist = thresholdData.ThresholdExist();
-                        Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
-                        Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
-                        if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
-                            makeNotification("Noise Alert", "Noise is over " + currentThreshold + " dB", "Your current environment exceeds the threshold of " + currentThreshold + "dB you have set.", DIALOG_SOUND, 101);
-                            lastNotificationTime = currentTime; // Update the last notification time
+                        if(intValue<2500) {
+                            Sounddata.add(intValue);
+                            SounddataTime.add(accessTime);
+                            long currentTime = System.currentTimeMillis();
+                            int currentThreshold = thresholdData.getSavedThreshold();
+                            boolean thresholdDataexist = thresholdData.ThresholdExist();
+                            Log.d(Tag, "Threshold" + String.valueOf(currentThreshold));
+                            Log.d(Tag, "DataExist" + String.valueOf(thresholdDataexist));
+                            if (thresholdDataexist && intValue > currentThreshold && (currentTime - lastNotificationTime > NOTIFICATION_DELAY)) {
+                                Log.d(Tag,"Send Notification for Sound");
+                                makeNotification("Noise Alert", "Noise is over " + currentThreshold + " dB", "Your current environment exceeds the threshold of " + currentThreshold + "dB you have set.", DIALOG_SOUND, 101);
+                                lastNotificationTime = currentTime; // Update the last notification time
+                            }
                         }
+                        else {
+                            Log.d(Tag,"Value discarded");
+                        }
+                        Log.d(Tag,"SOund "+ String.valueOf(intValue));
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
                         VOCdata.add(intValue);
                         VOCdataTIme.add(accessTime);
+                        Log.d(Tag,"VOC "+ String.valueOf(intValue));
                     }
 
 
-                    Log.d(Tag, String.valueOf(intValue));
+
 
                     //implement for later use , to give control to the user when he wants to have access to the data
                     if (shouldContinueReading) {
@@ -644,14 +654,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
         }
         WorkManager.getInstance(this).cancelAllWork();
         if (bluetoothGatt != null) {
-                handler.removeCallbacks(readCharacteristicRunnable);
+            handler.removeCallbacks(readCharacteristicRunnable);
             while (!gattInstances.isEmpty()) {
                 BluetoothGatt gatt = gattInstances.pop();
                 gatt.disconnect();
                 gatt.close();
             }
-                bluetoothGatt = null;
-            }
+            bluetoothGatt = null;
+        }
 
     }
     private void schedulePeriodicWorkWithInitialDelay() {
@@ -751,36 +761,36 @@ public class MainPageActivity<T> extends AppCompatActivity {
         currentToast.show();
     }
 
-public void makeNotification(String title, String message, String expandedText, String dialog, int ID) {
-    String channelID = "Channel_ID_notifications";
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID)
-            .setSmallIcon(R.drawable.logoleaf)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-    Class<?> activityClass = authentication.isAuthenticated()? MainPageActivity.class : MainActivity.class;
-    Intent intent = new Intent(getApplicationContext(), activityClass);
-    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
-    intent.putExtra(EXTRA_DIALOG_TYPE, dialog);
+    public void makeNotification(String title, String message, String expandedText, String dialog, int ID) {
+        String channelID = "Channel_ID_notifications";
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), channelID)
+                .setSmallIcon(R.drawable.logoleaf)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(expandedText))
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        Class<?> activityClass = authentication.isAuthenticated()? MainPageActivity.class : MainActivity.class;
+        Intent intent = new Intent(getApplicationContext(), activityClass);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);  // Set flags
+        intent.putExtra(EXTRA_DIALOG_TYPE, dialog);
 
-    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), ID, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-    builder.setContentIntent(pendingIntent);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), ID, intent, PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
 
-    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
-        if (notificationChannel == null) {
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
-            notificationChannel.setLightColor(Color.GREEN);
-            notificationChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(notificationChannel);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = notificationManager.getNotificationChannel(channelID);
+            if (notificationChannel == null) {
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                notificationChannel = new NotificationChannel(channelID, "Some Description", importance);
+                notificationChannel.setLightColor(Color.GREEN);
+                notificationChannel.enableVibration(true);
+                notificationManager.createNotificationChannel(notificationChannel);
+            }
         }
+        notificationManager.notify(ID, builder.build());
     }
-    notificationManager.notify(ID, builder.build());
-}
 
 
 
