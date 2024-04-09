@@ -190,27 +190,27 @@ public class StatActivity extends AppCompatActivity {
     private void createThresholdLines(int soundThresholdValue) {
 
         // Define the color used for the threshold lines
-        int colorSound = Color.WHITE;
-        int colorVOC = Color.WHITE;
-        int colorCO2 = Color.WHITE;
+        int colorSound = Color.BLACK;
 
         // Define the threshold values for each levels
-        int soundLevel1 = Color.GREEN;
-        int soundLevel2 = Color.YELLOW;
-        int soundLevel3 = Color.RED;
+        int soundLevel1 = Color.YELLOW;
+        int soundLevel2 = Color.RED;
+        int soundLevel1Limit = 70;
+        int soundLevel2Limit = 86;
 
         int vocLevel1 = Color.YELLOW;
         int vocLevel2 = Color.RED;
-
-        int co2Level1 = Color.YELLOW;
-        int co2Level2 = Color.RED;
-
         int vocLevel1Limit = 51;
         int vocLevel2Limit = 101;
 
+        int co2Level1 = Color.YELLOW;
+        int co2Level2 = Color.RED;
+        int co2Leve1Limit = 1001;
+        int co2Level2Limit = 1501;
 
 
 
+        // Establish threshold line for sound graph from the user's input
         if(soundThresholdValue != 0)
             thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, soundThresholdValue),
@@ -219,13 +219,67 @@ public class StatActivity extends AppCompatActivity {
         setDashedLine(thresholdSoundLine, colorSound,1000);
         soundLevelGraph.addSeries(thresholdSoundLine);
 
+        // Establish separate lines for soundLevel1Limit and soundLevel2Limit
+        LineGraphSeries<DataPoint> soundLevel1LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, soundLevel1Limit),
+                new DataPoint(dataSize - 1, soundLevel1Limit)
+        });
+        setDashedLine(soundLevel1LimitLine,soundLevel1,1000);
+        soundLevelGraph.addSeries(soundLevel1LimitLine);
+
+
+        LineGraphSeries<DataPoint> soundLevel2LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, soundLevel2Limit),
+                new DataPoint(dataSize - 1, soundLevel2Limit)
+        });
+        setDashedLine(soundLevel2LimitLine,soundLevel2,1000);
+        soundLevelGraph.addSeries(soundLevel2LimitLine);
+
+
+
+
+
+
         // Establish threshold line for VOC graph
+        LineGraphSeries<DataPoint> vocLevel1LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, vocLevel1Limit),
+                new DataPoint(dataSize - 1, vocLevel1Limit)
+        });
+        setDashedLine(vocLevel1LimitLine,vocLevel1,1000);
+        VOCGraph.addSeries(vocLevel1LimitLine);
+
+
+        LineGraphSeries<DataPoint> vocLevel2LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, vocLevel2Limit),
+                new DataPoint(dataSize - 1, vocLevel2Limit)
+        });
+        setDashedLine(vocLevel2LimitLine,vocLevel2,1000);
+        VOCGraph.addSeries(vocLevel2LimitLine);
+
+
 
 
         // Establish threshold line for CO2 graph
+        LineGraphSeries<DataPoint> co2Level1LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, co2Leve1Limit),
+                new DataPoint(dataSize - 1, co2Leve1Limit)
+        });
+        setDashedLine(co2Level1LimitLine,co2Level1,1000);
+        CO2Graph.addSeries(co2Level1LimitLine);
 
 
+        LineGraphSeries<DataPoint> co2Level2LimitLine = new LineGraphSeries<>(new DataPoint[]{
+                new DataPoint(0, co2Level2Limit),
+                new DataPoint(dataSize - 1, co2Level2Limit)
+        });
+        setDashedLine(co2Level2LimitLine,co2Level2,1000);
+        CO2Graph.addSeries(co2Level2LimitLine);
     }
+
+
+
+
+
 
     private void setDashedLine(LineGraphSeries<DataPoint> series, int color, int thickness) {
         series.setDrawAsPath(true);
