@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,8 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            background-color: powderblue;
+            font-family: Trebuchet MS;
         }
 
         #passwordChangeForm {
@@ -19,6 +22,8 @@
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            background-color: rgb(119, 184, 192);
+            border-radius: 10px;
         }
 
         input {
@@ -31,10 +36,13 @@
         button {
             width: calc(100% - 20px);
             padding: 10px;
-            background-color: #4CAF50;
+            background-color: #063a50;
             color: white;
             border: none;
             cursor: pointer;
+            margin-top: 10px;
+            border-radius: 10px;
+            width: calc(50% - 10px);
         }
 
         button:hover {
@@ -46,9 +54,11 @@
         }
     </style>
 </head>
+
 <body>
+
     <div id="passwordChangeForm">
-        <h2>Reset Password</h2>
+        <img src="EnviroSpectLogoFinal.png" alt="" style="max-width: 100%; max-height: 120px;">
         <input type="password" id="newPassword" placeholder="New Password" required>
         <input type="password" id="confirmPassword" placeholder="Confirm New Password" required>
         <button onclick="resetPassword()">Reset Password</button>
@@ -84,20 +94,21 @@
                 },
                 body: JSON.stringify({ token, newPassword })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                messageElement.textContent = data.message;
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                messageElement.textContent = 'Error resetting password';
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    messageElement.textContent = data.message;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    messageElement.textContent = 'Error resetting password';
+                });
         }
     </script>
 </body>
+
 </html>
