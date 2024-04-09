@@ -190,14 +190,33 @@ public class StatActivity extends AppCompatActivity {
     private void createThresholdLines(int soundThresholdValue) {
 
         // Define the color used for the threshold lines
-        int color = Color.RED;
+        int colorSound = Color.WHITE;
+        int colorVOC = Color.WHITE;
+        int colorCO2 = Color.WHITE;
+
+        // Define the threshold values for each levels
+        int soundLevel1 = Color.GREEN;
+        int soundLevel2 = Color.YELLOW;
+        int soundLevel3 = Color.RED;
+
+        int vocLevel1 = Color.YELLOW;
+        int vocLevel2 = Color.RED;
+
+        int co2Level1 = Color.YELLOW;
+        int co2Level2 = Color.RED;
+
+        int vocLevel1Limit = 51;
+        int vocLevel2Limit = 101;
+
+
+
 
         if(soundThresholdValue != 0)
             thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
                 new DataPoint(0, soundThresholdValue),
                 new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
         });
-        setDashedLine(thresholdSoundLine, color);
+        setDashedLine(thresholdSoundLine, colorSound,1000);
         soundLevelGraph.addSeries(thresholdSoundLine);
 
         // Establish threshold line for VOC graph
@@ -208,15 +227,16 @@ public class StatActivity extends AppCompatActivity {
 
     }
 
-    private void setDashedLine(LineGraphSeries<DataPoint> series, int color) {
+    private void setDashedLine(LineGraphSeries<DataPoint> series, int color, int thickness) {
         series.setDrawAsPath(true);
         series.setAnimated(false);
         series.setDrawDataPoints(false);
-        series.setThickness(50);
+//        series.setThickness(thickness);
         series.setCustomPaint(new Paint(Paint.ANTI_ALIAS_FLAG) {{
             setStyle(Paint.Style.STROKE);
             setPathEffect(new DashPathEffect(new float[]{10, 20}, 0)); // Adjust the array to change dash pattern
             setColor(color); // Set the color of the line
+            series.setThickness(thickness);
         }});
     }
 
@@ -271,7 +291,10 @@ public class StatActivity extends AppCompatActivity {
                 Log.d("StatActivity","scal");
                 GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
                 glrSound.setNumHorizontalLabels(5);
-                glrSound.setPadding(85);
+                soundLevelGraph.setTitle("Sound Quality");
+                glrSound.setVerticalAxisTitle("dB");
+                glrSound.setVerticalAxisTitleTextSize(50);
+                glrSound.setPadding(20);
                 Log.d("StatActivity","rendererl");
                 double labelInterval = totalTimeSpan / 4; // 4 intervals for 5 labels
                 Log.d("StatActivity","OUTSIDE RENDERING");
@@ -314,6 +337,8 @@ public class StatActivity extends AppCompatActivity {
                     Toast.makeText(StatActivity.this, "Time: " + timeString + ", Sound Level: " + dataPoint.getY() + " dB", Toast.LENGTH_SHORT).show();
                 }
             });
+
+            createThresholdLines(soundThresholdValue);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -360,7 +385,10 @@ public class StatActivity extends AppCompatActivity {
 
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
             glrVOC.setNumHorizontalLabels(5);
-            glrVOC.setPadding(85);
+            VOCGraph.setTitle("VOC Level");
+            glrVOC.setVerticalAxisTitle("ppb");
+            glrVOC.setVerticalAxisTitleTextSize(50);
+            glrVOC.setPadding(20);
             VOCGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
                 @Override
                 public String formatLabel(double value, boolean isValueX) {
@@ -433,7 +461,10 @@ public class StatActivity extends AppCompatActivity {
 
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
             glrCO2.setNumHorizontalLabels(5);
-            glrCO2.setPadding(85);
+            CO2Graph.setTitle("CO2 Level");
+            glrCO2.setVerticalAxisTitle("ppm");
+            glrCO2.setVerticalAxisTitleTextSize(50);
+            glrCO2.setPadding(20);
             CO2Graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
                 @Override
                 public String formatLabel(double value, boolean isValueX) {

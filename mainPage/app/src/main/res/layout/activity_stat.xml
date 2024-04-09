@@ -41,6 +41,7 @@
                 android:minHeight="60dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp" />
+
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/SoundLevel"
                 android:layout_width="match_parent"
@@ -57,10 +58,10 @@
                 android:id="@+id/soundQualityTextView"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="Sound Quality"
+                android:text="Time"
                 android:textColor="@color/TextViewColor"
                 android:textAlignment="center"
-                android:textSize="20dp"
+                android:textSize="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -71,21 +72,22 @@
                 android:id="@+id/VOCQuality"
                 android:layout_width="match_parent"
                 android:layout_height="200dip"
+                android:layout_gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.787" />
+                app:layout_constraintVertical_bias="0.218" />
 
             <TextView
                 android:id="@+id/VOCQualityTextView"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="VOC Quality"
+                android:text="Time"
                 android:textColor="@color/TextViewColor"
                 android:textAlignment="center"
-                android:textSize="20dp"
+                android:textSize="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -95,21 +97,22 @@
                 android:id="@+id/CO2Quality"
                 android:layout_width="match_parent"
                 android:layout_height="200dip"
+                android:layout_gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.787" />
+                app:layout_constraintVertical_bias="0.218" />
 
 
             <TextView
                 android:id="@+id/CO2QualityTextView"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="CO2 Quality"
-                android:textAlignment="center"
-                android:textSize="20dp"
+                android:text="Time"
+                android:layout_gravity="center"
+                android:textSize="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
