@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,9 @@ public class loginActivity extends AppCompatActivity {
     protected EditText usernameEdit;
     protected EditText passwordEdit;
     protected Toolbar toolbar;
-    protected TextView forgotpassword;
+    protected TextView forgotpassword1;
+
+    protected ImageButton forgotpassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
