@@ -71,6 +71,9 @@ public class StatActivity extends AppCompatActivity {
    private String Chosendate;
     private ToggleButton toggleButton;
     private boolean isWeeklyView = false; // Default to daily view
+    private DataPoint[] soundLevelDataPoints;
+    private DataPoint[] vocLevelDataPoints;
+    private DataPoint[] co2LevelDataPoints;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,70 +212,60 @@ public class StatActivity extends AppCompatActivity {
         int co2Level2Limit = 1501;
 
 
-
         // Establish threshold line for sound graph from the user's input
-        if(soundThresholdValue != 0)
+        if (soundThresholdValue != 0) {
             thresholdSoundLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, soundThresholdValue),
-                new DataPoint(dataSize - 1, soundThresholdValue) // Adjust dataSize - 1 according to your data size
-        });
-        setDashedLine(thresholdSoundLine, colorSound,1000);
-        soundLevelGraph.addSeries(thresholdSoundLine);
+                    new DataPoint(soundLevelDataPoints[0].getX(), soundThresholdValue),
+                    new DataPoint(soundLevelDataPoints[soundLevelDataPoints.length - 1].getX(), soundThresholdValue)
+            });
+            setDashedLine(thresholdSoundLine, colorSound, 1000);
+            soundLevelGraph.addSeries(thresholdSoundLine);
+        }
 
         // Establish separate lines for soundLevel1Limit and soundLevel2Limit
         LineGraphSeries<DataPoint> soundLevel1LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, soundLevel1Limit),
-                new DataPoint(dataSize - 1, soundLevel1Limit)
+                new DataPoint(soundLevelDataPoints[0].getX(), soundLevel1Limit),
+                new DataPoint(soundLevelDataPoints[soundLevelDataPoints.length - 1].getX(), soundLevel1Limit)
         });
-        setDashedLine(soundLevel1LimitLine,soundLevel1,1000);
+        setDashedLine(soundLevel1LimitLine, soundLevel1, 1000);
         soundLevelGraph.addSeries(soundLevel1LimitLine);
 
-
         LineGraphSeries<DataPoint> soundLevel2LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, soundLevel2Limit),
-                new DataPoint(dataSize - 1, soundLevel2Limit)
+                new DataPoint(soundLevelDataPoints[0].getX(), soundLevel2Limit),
+                new DataPoint(soundLevelDataPoints[soundLevelDataPoints.length - 1].getX(), soundLevel2Limit)
         });
-        setDashedLine(soundLevel2LimitLine,soundLevel2,1000);
+        setDashedLine(soundLevel2LimitLine, soundLevel2, 1000);
         soundLevelGraph.addSeries(soundLevel2LimitLine);
-
-
-
-
 
 
         // Establish threshold line for VOC graph
         LineGraphSeries<DataPoint> vocLevel1LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, vocLevel1Limit),
-                new DataPoint(dataSize - 1, vocLevel1Limit)
+                new DataPoint(vocLevelDataPoints[0].getX(), vocLevel1Limit),
+                new DataPoint(vocLevelDataPoints[vocLevelDataPoints.length - 1].getX(), vocLevel1Limit)
         });
-        setDashedLine(vocLevel1LimitLine,vocLevel1,1000);
+        setDashedLine(vocLevel1LimitLine, vocLevel1, 1000);
         VOCGraph.addSeries(vocLevel1LimitLine);
 
-
         LineGraphSeries<DataPoint> vocLevel2LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, vocLevel2Limit),
-                new DataPoint(dataSize - 1, vocLevel2Limit)
+                new DataPoint(vocLevelDataPoints[0].getX(), vocLevel2Limit),
+                new DataPoint(vocLevelDataPoints[vocLevelDataPoints.length - 1].getX(), vocLevel2Limit)
         });
-        setDashedLine(vocLevel2LimitLine,vocLevel2,1000);
+        setDashedLine(vocLevel2LimitLine, vocLevel2, 1000);
         VOCGraph.addSeries(vocLevel2LimitLine);
 
-
-
-
-        // Establish threshold line for CO2 graph
+// Establish threshold line for CO2 graph
         LineGraphSeries<DataPoint> co2Level1LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, co2Leve1Limit),
-                new DataPoint(dataSize - 1, co2Leve1Limit)
+                new DataPoint(co2LevelDataPoints[0].getX(), co2Leve1Limit),
+                new DataPoint(co2LevelDataPoints[co2LevelDataPoints.length - 1].getX(), co2Leve1Limit)
         });
-        setDashedLine(co2Level1LimitLine,co2Level1,1000);
+        setDashedLine(co2Level1LimitLine, co2Level1, 1000);
         CO2Graph.addSeries(co2Level1LimitLine);
 
-
         LineGraphSeries<DataPoint> co2Level2LimitLine = new LineGraphSeries<>(new DataPoint[]{
-                new DataPoint(0, co2Level2Limit),
-                new DataPoint(dataSize - 1, co2Level2Limit)
+                new DataPoint(co2LevelDataPoints[0].getX(), co2Level2Limit),
+                new DataPoint(co2LevelDataPoints[co2LevelDataPoints.length - 1].getX(), co2Level2Limit)
         });
-        setDashedLine(co2Level2LimitLine,co2Level2,1000);
+        setDashedLine(co2Level2LimitLine, co2Level2, 1000);
         CO2Graph.addSeries(co2Level2LimitLine);
     }
 
@@ -469,6 +462,7 @@ public class StatActivity extends AppCompatActivity {
                     Toast.makeText(StatActivity.this, "Time: " + timeString + ", VOC Level: " + dataPoint.getY() + " ppb", Toast.LENGTH_SHORT).show();
                 }
             });
+            createThresholdLines(soundThresholdValue);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -545,11 +539,13 @@ public class StatActivity extends AppCompatActivity {
                     Toast.makeText(StatActivity.this, "Time: " + timeString + ", CO2 Level: " + dataPoint.getY() + " ppm", Toast.LENGTH_SHORT).show();
                 }
             });
+            createThresholdLines(soundThresholdValue);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
         private void retrieveDailyData(String date) {
         // Call method to retrieve sound data
@@ -569,6 +565,16 @@ public class StatActivity extends AppCompatActivity {
                     // Store sound threshold value
                     if(thresholdData.ThresholdExist())
                         soundThresholdValue = thresholdData.getSavedThreshold();
+                    // Initialize soundLevelDataPoints
+                    soundLevelDataPoints = new DataPoint[soundDataList.size()];
+
+                    // Populate soundLevelDataPoints with data
+                    for (int i = 0; i < soundDataList.size(); i++) {
+                        AccessTime at = accessTimeList.get(i);
+                        double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                        double timeOffset = timeInSeconds - baseTimeInSeconds;
+                        soundLevelDataPoints[i] = new DataPoint(timeOffset, soundDataList.get(i));
+                    }
                 }catch (IndexOutOfBoundsException e)
                 {
                     Log.d("StatActivity", e.getMessage() );
@@ -593,6 +599,16 @@ public class StatActivity extends AppCompatActivity {
                         updateVOCGraph(vocDataList,accessTimeList);
                         try {
                             dataSize = Math.max(dataSize, vocDataList.size());
+
+                            // Initialize vocLevelDataPoints
+                            vocLevelDataPoints = new DataPoint[vocDataList.size()];
+                            // Populate vocLevelDataPoints with data
+                            for (int i = 0; i < vocDataList.size(); i++) {
+                                AccessTime at = accessTimeList.get(i);
+                                double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                                double timeOffset = timeInSeconds - baseTimeInSeconds;
+                                vocLevelDataPoints[i] = new DataPoint(timeOffset, vocDataList.get(i));
+                            }
 
                             // Store VOC threshold value
 
@@ -621,8 +637,17 @@ public class StatActivity extends AppCompatActivity {
                                 try {
                                     dataSize = Math.max(dataSize, co2DataList.size());
 
-                                    if(thresholdData.ThresholdExist())
-                                        createThresholdLines(soundThresholdValue);
+                                    // Initialize co2LevelDataPoints
+                                    co2LevelDataPoints = new DataPoint[co2DataList.size()];
+                                    // Populate co2LevelDataPoints with data
+                                    for (int i = 0; i < co2DataList.size(); i++) {
+                                        AccessTime at = accessTimeList.get(i);
+                                        double timeInSeconds = at.getHour() * 3600 + at.getMinute() * 60 + at.getSecond();
+                                        double timeOffset = timeInSeconds - baseTimeInSeconds;
+                                        co2LevelDataPoints[i] = new DataPoint(timeOffset, co2DataList.get(i));
+                                    }
+
+                                    createThresholdLines(soundThresholdValue);
 
                                 }catch (IndexOutOfBoundsException e)
                                 {
