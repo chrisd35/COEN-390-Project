@@ -85,6 +85,7 @@ public class StatActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         toggleButton = findViewById(R.id.toggleButton);
+        toggleButton.setVisibility(View.GONE);
         toggleButton.setChecked(false); // Set to represent daily view by default
         Spinner dynamicSpinner = findViewById(R.id.dynamic_spinner);
 

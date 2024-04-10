@@ -84,10 +84,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static int minutes;
     private long lastNotificationTime = 0;
     ;
-    private static final long NOTIFICATION_DELAY = 900000;
+    private static final long NOTIFICATION_DELAY = 180000;
     private long lastNotificationTimeCO2 = 0;
     ;
-    private static final long NOTIFICATION_DELAYCO2 = 300000;
+    private static final long NOTIFICATION_DELAYCO2 = 180000;
 
     public static boolean issoundclicked = false;
     public static boolean isairclicked = false;
