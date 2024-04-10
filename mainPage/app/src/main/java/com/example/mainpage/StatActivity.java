@@ -182,10 +182,6 @@ public class StatActivity extends AppCompatActivity {
     private void refreshData() {
         String date = Chosendate; // Default date, can be updated based on user interaction
 
-        // Clear existing data series from all graphs
-        soundLevelGraph.removeAllSeries();
-        VOCGraph.removeAllSeries();
-        CO2Graph.removeAllSeries();
             // Fetch daily data
             retrieveDailyData(date);
 
