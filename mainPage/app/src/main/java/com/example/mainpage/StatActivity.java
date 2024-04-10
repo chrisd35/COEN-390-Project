@@ -170,6 +170,7 @@ public class StatActivity extends AppCompatActivity {
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("RefreshButton", "Refresh button clicked");
                 // Call method to refresh data
                 refreshData();
             }
@@ -545,6 +546,7 @@ public class StatActivity extends AppCompatActivity {
 
 
         private void retrieveDailyData(String date) {
+            Log.d("DataRetrieval", "Retrieving daily data for date: " + date); // Log a message to indicate data retrieval process is initiated
         // Call method to retrieve sound data
         DataRetrieveWorker.retrieveSoundDataFromServer(date, new DataRetrieveWorker.DataCallback() {
             @Override
@@ -716,86 +718,86 @@ public class StatActivity extends AppCompatActivity {
 //
 //    }
 
-    private void retrieveWeeklyData(String date) {
-        Calendar calendar = Calendar.getInstance();
-        try {
-            calendar.setTimeInMillis(new SimpleDateFormat("yyyy-MM-dd").parse(date).getTime());
-        } catch (ParseException e) {
-            // Handle parsing exception (e.g., log the error, use a default date)
-            e.printStackTrace();
-        }
+//    private void retrieveWeeklyData(String date) {
+//        Calendar calendar = Calendar.getInstance();
+//        try {
+//            calendar.setTimeInMillis(new SimpleDateFormat("yyyy-MM-dd").parse(date).getTime());
+//        } catch (ParseException e) {
+//            // Handle parsing exception (e.g., log the error, use a default date)
+//            e.printStackTrace();
+//        }
+//
+//        ArrayList<Double> soundDataList = new ArrayList<>();
+//        ArrayList<Double> vocDataList = new ArrayList<>();
+//        ArrayList<Double> co2DataList = new ArrayList<>();
+//        ArrayList<AccessTime> accessTimes = new ArrayList<>();
+//
+//        // Counter to track the number of data retrieval operations completed
+//        AtomicInteger dataRetrievalCounter = new AtomicInteger(0);
+//
+//        // Define a callback to handle completion of all data retrieval operations
+//        Runnable allDataRetrievedCallback = () -> {
+//            // Check if all data retrieval operations are completed
+//            if (dataRetrievalCounter.get() == 7) {
+//                // Call updateWeeklyData with the accumulated data
+//                updateWeeklyData(soundDataList, vocDataList, co2DataList, accessTimes);
+//            }
+//        };
+//
+//        for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+//            calendar.add(Calendar.DAY_OF_YEAR, dayOfWeek);
+//            String dailyDate = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
+//
+//            // Retrieve sound data for the current day
+//            DataRetrieveWorker.retrieveSoundDataFromServer(dailyDate, new DataRetrieveWorker.DataCallback() {
+//                @Override
+//                public void onDataLoaded(ArrayList<Double> dailySoundData, ArrayList<AccessTime> dailyAccessTimes) {
+//                    // Calculate the daily sound average and add it to the list
+//                    double dailySoundAverage = calculateAverage(dailySoundData);
+//                    soundDataList.add(dailySoundAverage);
+//
+//                    // Increment the data retrieval counter
+//                    dataRetrievalCounter.incrementAndGet();
+//
+//                    // Check if all data retrieval operations are completed
+//                    allDataRetrievedCallback.run();
+//                }
+//
+//                @Override
+//                public void onFailure(String errorMessage) {
+//                    // Handle sound data retrieval failure
+//                    // Increment the data retrieval counter
+//                    dataRetrievalCounter.incrementAndGet();
+//
+//                    // Check if all data retrieval operations are completed
+//                    allDataRetrievedCallback.run();
+//                }
+//            });
+//
+//            // Retrieve VOC data for the current day (similar logic as sound data retrieval)
+//
+//            // Retrieve CO2 data for the current day (similar logic as sound data retrieval)
+//        }
+//    }
 
-        ArrayList<Double> soundDataList = new ArrayList<>();
-        ArrayList<Double> vocDataList = new ArrayList<>();
-        ArrayList<Double> co2DataList = new ArrayList<>();
-        ArrayList<AccessTime> accessTimes = new ArrayList<>();
-
-        // Counter to track the number of data retrieval operations completed
-        AtomicInteger dataRetrievalCounter = new AtomicInteger(0);
-
-        // Define a callback to handle completion of all data retrieval operations
-        Runnable allDataRetrievedCallback = () -> {
-            // Check if all data retrieval operations are completed
-            if (dataRetrievalCounter.get() == 7) {
-                // Call updateWeeklyData with the accumulated data
-                updateWeeklyData(soundDataList, vocDataList, co2DataList, accessTimes);
-            }
-        };
-
-        for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
-            calendar.add(Calendar.DAY_OF_YEAR, dayOfWeek);
-            String dailyDate = new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime());
-
-            // Retrieve sound data for the current day
-            DataRetrieveWorker.retrieveSoundDataFromServer(dailyDate, new DataRetrieveWorker.DataCallback() {
-                @Override
-                public void onDataLoaded(ArrayList<Double> dailySoundData, ArrayList<AccessTime> dailyAccessTimes) {
-                    // Calculate the daily sound average and add it to the list
-                    double dailySoundAverage = calculateAverage(dailySoundData);
-                    soundDataList.add(dailySoundAverage);
-
-                    // Increment the data retrieval counter
-                    dataRetrievalCounter.incrementAndGet();
-
-                    // Check if all data retrieval operations are completed
-                    allDataRetrievedCallback.run();
-                }
-
-                @Override
-                public void onFailure(String errorMessage) {
-                    // Handle sound data retrieval failure
-                    // Increment the data retrieval counter
-                    dataRetrievalCounter.incrementAndGet();
-
-                    // Check if all data retrieval operations are completed
-                    allDataRetrievedCallback.run();
-                }
-            });
-
-            // Retrieve VOC data for the current day (similar logic as sound data retrieval)
-
-            // Retrieve CO2 data for the current day (similar logic as sound data retrieval)
-        }
-    }
-
-    private double calculateAverage(ArrayList<Double> data) {
-        double sum = 0;
-        for (double value : data) {
-            sum += value;
-        }
-        return sum / data.size();
-    }
-
-    private void updateWeeklyData(ArrayList<Double> soundDataList, ArrayList<Double> vocDataList, ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimes) {
-        // Update the sound level graph
-        updateSoundLevelGraph(soundDataList, accessTimes);
-
-        // Update the VOC graph
-        updateVOCGraph(vocDataList, accessTimes);
-
-        // Update the CO2 graph
-        updateCO2Graph(co2DataList, accessTimes);
-    }
+//    private double calculateAverage(ArrayList<Double> data) {
+//        double sum = 0;
+//        for (double value : data) {
+//            sum += value;
+//        }
+//        return sum / data.size();
+//    }
+//
+//    private void updateWeeklyData(ArrayList<Double> soundDataList, ArrayList<Double> vocDataList, ArrayList<Double> co2DataList, ArrayList<AccessTime> accessTimes) {
+//        // Update the sound level graph
+//        updateSoundLevelGraph(soundDataList, accessTimes);
+//
+//        // Update the VOC graph
+//        updateVOCGraph(vocDataList, accessTimes);
+//
+//        // Update the CO2 graph
+//        updateCO2Graph(co2DataList, accessTimes);
+//    }
 
 
 
