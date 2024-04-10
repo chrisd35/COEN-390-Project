@@ -140,7 +140,7 @@
                 android:layout_marginEnd="16dp"
                 android:checked="false"
                 android:textOff="Daily"
-                android:textOn="Weekly"
+                android:textOn="Real Time"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
