@@ -84,6 +84,9 @@ public class MainPageActivity<T> extends AppCompatActivity {
     public static int minutes;
     private long lastNotificationTime = 0;
     ;
+    private static final long NOTIFICATION_DELAYVOC= 180000;
+
+    private long lastNotificationTimeVOC;
     private static final long NOTIFICATION_DELAY = 180000;
     private long lastNotificationTimeCO2 = 0;
     ;
@@ -429,6 +432,14 @@ public class MainPageActivity<T> extends AppCompatActivity {
                     } else if (characteristic.getUuid().equals(UUID.fromString(CharacteristicThreeUUID))) {
                         VOCdata.add(intValue);
                         VOCdataTIme.add(accessTime);
+                        long currentTime = System.currentTimeMillis();
+
+
+                        if(intValue>101 && (currentTime - lastNotificationTimeVOC > NOTIFICATION_DELAYVOC)) {
+
+                            makeNotification("Air Quality Alert", "VOC is over 101 pbm", "Our sensors detected a high concentration of VOC in your environment", DIALOG_VOC, 103);
+                            lastNotificationTimeVOC=currentTime;
+                        }
                         Log.d(Tag,"VOC "+ String.valueOf(intValue));
                     }
 
@@ -718,6 +729,8 @@ public class MainPageActivity<T> extends AppCompatActivity {
     }
     private static final String EXTRA_DIALOG_TYPE = "DialogType";
     private static final String DIALOG_SOUND = "SoundDialog";
+
+    private static final String DIALOG_VOC = "VOCDialog";
     private static final String DIALOG_AIR = "AirDialog";
 
 
@@ -732,6 +745,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
             Log.d(Tag, "NEW SOUND INTENT");
         }
         else if (DIALOG_AIR.equals(dialogType)) {
+            CO2DataCollect.performClick();
+            Log.d(Tag, "NEW AIR INTENT");
+        }
+        else if (DIALOG_VOC.equals(dialogType)) {
             CO2DataCollect.performClick();
             Log.d(Tag, "NEW AIR INTENT");
         }
