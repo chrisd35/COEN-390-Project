@@ -28,11 +28,12 @@
                 android:id="@+id/statsPageToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:background="@color/ToolbarBackgroundColor"
-                app:titleTextColor="@color/ToolbarTextColor"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="?attr/actionBarTheme"
-                app:title="Daily Forecast" />
+                app:title="Daily Forecast"
+                app:titleTextColor="@color/ToolbarTextColor" />
 
             <Spinner
                 android:id="@+id/dynamic_spinner"
@@ -41,6 +42,13 @@
                 android:minHeight="60dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:text="dB" />
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/SoundLevel"
@@ -68,6 +76,13 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
 
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="ppb" />
+
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/VOCQuality"
                 android:layout_width="match_parent"
@@ -92,6 +107,13 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="ppm" />
 
             <com.jjoe64.graphview.GraphView
                 android:id="@+id/CO2Quality"

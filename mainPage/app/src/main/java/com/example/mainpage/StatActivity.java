@@ -77,6 +77,7 @@ public class StatActivity extends AppCompatActivity {
     private DataPoint[] vocLevelDataPoints;
     private DataPoint[] co2LevelDataPoints;
 
+    private  Spinner dynamicSpinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +89,7 @@ public class StatActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         toggleButton = findViewById(R.id.toggleButton);
         toggleButton.setChecked(false); // Set to represent daily view by default
-        Spinner dynamicSpinner = findViewById(R.id.dynamic_spinner);
+        dynamicSpinner = findViewById(R.id.dynamic_spinner);
 
         DataRetrieveWorker.getAllDatesFromServer(new DataRetrieveWorker.DataCallbackdates() {
             @Override
@@ -191,8 +192,10 @@ public class StatActivity extends AppCompatActivity {
     }
     private  Timer timer;
     private void refreshData() {
+
         String date = Chosendate;
         if (!isWeeklyView) { // Prioritize daily view
+            dynamicSpinner.setVisibility(View.VISIBLE);
             // Clear existing data series from all graphs
             if (timer != null) {
                 timer.cancel();
@@ -203,6 +206,7 @@ public class StatActivity extends AppCompatActivity {
             retrieveDailyData(date);
         } else {
             // Fetch weekly data
+            dynamicSpinner.setVisibility(View.GONE);
             try {
 
                 if (timer != null) {
@@ -378,9 +382,9 @@ public class StatActivity extends AppCompatActivity {
                 soundLevelGraph.getViewport().setScalable(true);
                 Log.d("StatActivity","scal");
                 GridLabelRenderer glrSound = soundLevelGraph.getGridLabelRenderer();
-                glrSound.setNumHorizontalLabels(5);
+                glrSound.setNumHorizontalLabels(3);
                 soundLevelGraph.setTitle("Sound Quality");
-                glrSound.setVerticalAxisTitle("dB");
+
                 glrSound.setVerticalAxisTitleTextSize(50);
                 glrSound.setPadding(20);
                 Log.d("StatActivity","rendererl");
@@ -472,9 +476,9 @@ public class StatActivity extends AppCompatActivity {
             VOCGraph.getViewport().setScalable(true);
 
             GridLabelRenderer glrVOC = VOCGraph.getGridLabelRenderer();
-            glrVOC.setNumHorizontalLabels(5);
+            glrVOC.setNumHorizontalLabels(3);
             VOCGraph.setTitle("VOC Level");
-            glrVOC.setVerticalAxisTitle("ppb");
+
             glrVOC.setVerticalAxisTitleTextSize(50);
             glrVOC.setPadding(20);
             VOCGraph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
@@ -549,9 +553,8 @@ public class StatActivity extends AppCompatActivity {
             CO2Graph.getViewport().setScalable(true);
 
             GridLabelRenderer glrCO2 = CO2Graph.getGridLabelRenderer();
-            glrCO2.setNumHorizontalLabels(5);
+            glrCO2.setNumHorizontalLabels(3);
             CO2Graph.setTitle("CO2 Level");
-            glrCO2.setVerticalAxisTitle("ppm");
             glrCO2.setVerticalAxisTitleTextSize(50);
             glrCO2.setPadding(20);
             CO2Graph.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter() {
@@ -735,14 +738,20 @@ public class StatActivity extends AppCompatActivity {
     // Right now, it is setup to only display dummy data
     private void retrieveWeeklyData() {
         // Generate dummy data for a week with a loop
-        ArrayList<Integer> dummySoundData  =MainPageActivity.Sounddata;
-        ArrayList<Integer> dummyVOCData =MainPageActivity.VOCdata;
-        ArrayList<Integer> dummyCO2Data = MainPageActivity.Co2data;
-        ArrayList<AccessTime> AccessSoundData  =MainPageActivity.SounddataTime;
-        ArrayList<AccessTime> AccessVOCData =MainPageActivity.VOCdataTIme;
-        ArrayList<AccessTime> AcccessCO2Data = MainPageActivity.Co2dataTime;
+//        ArrayList<Integer> dummySoundData  =MainPageActivity.Sounddata;
+//        ArrayList<Integer> dummyVOCData =MainPageActivity.VOCdata;
+//        ArrayList<Integer> dummyCO2Data = MainPageActivity.Co2data;
+//        ArrayList<AccessTime> AccessSoundData  =MainPageActivity.SounddataTime;
+//        ArrayList<AccessTime> AccessVOCData =MainPageActivity.VOCdataTIme;
+//        ArrayList<AccessTime> AcccessCO2Data = MainPageActivity.Co2dataTime;
 
-        ArrayList<AccessTime> dummyAccessTimes = new ArrayList<>();
+        ArrayList<Integer> dummySoundData= new ArrayList<>(getLastFiveElements(MainPageActivity.Sounddata));
+        ArrayList<Integer> dummyVOCData = new ArrayList<>(getLastFiveElements(MainPageActivity.VOCdata));
+        ArrayList<Integer> dummyCO2Data = new ArrayList<>(getLastFiveElements(MainPageActivity.Co2data));
+        ArrayList<AccessTime> AccessSoundData = new ArrayList<>(getLastFiveElements(MainPageActivity.SounddataTime));
+        ArrayList<AccessTime> AccessVOCData = new ArrayList<>(getLastFiveElements(MainPageActivity.VOCdataTIme));
+        ArrayList<AccessTime> AcccessCO2Data = new ArrayList<>(getLastFiveElements(MainPageActivity.Co2dataTime));
+
 
 
         // Update level graphs with weekly dummy data
@@ -751,6 +760,13 @@ public class StatActivity extends AppCompatActivity {
         updateCO2Graph(dummyCO2Data, AcccessCO2Data);
 
 
+    }
+    public static <T> List<T> getLastFiveElements(ArrayList<T> list) {
+        if (list.size() <= 15) {
+            return new ArrayList<>(list); // Return a copy of the list if it has 5 or fewer elements
+        } else {
+            return new ArrayList<>(list.subList(list.size() - 15, list.size())); // Return the last 5 elements
+        }
     }
 
 //    private void retrieveWeeklyData(String date) {
