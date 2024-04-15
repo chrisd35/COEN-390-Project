@@ -22,7 +22,7 @@ public class DataRetrieveWorker {
     private static final String TAG = "DataRetrieveHelper";
 
     public interface DataCallback {
-        void onDataLoaded(ArrayList<Double> dataList, ArrayList<AccessTime> accessTimeList);
+        void onDataLoaded(ArrayList<Integer> dataList, ArrayList<AccessTime> accessTimeList);
 
         void onFailure(String errorMessage);
     }
@@ -126,10 +126,10 @@ public class DataRetrieveWorker {
                         JSONArray dataArray = jsonObj.getJSONArray("data");
                         JSONArray accessTimeArray = jsonObj.getJSONArray("DataAccessTime");
                         ArrayList<AccessTime> accessTimeList = new ArrayList<>();
-                        ArrayList<Double> dataList = new ArrayList<>();
+                        ArrayList<Integer> dataList = new ArrayList<>();
                         String message = jsonObj.getString("message");
                         for (int i = 0; i < dataArray.length(); i++) {
-                            double value = dataArray.getDouble(i);
+                            int value = dataArray.getInt(i);
                             dataList.add(value);
                         }
                         for (int i = 0; i < accessTimeArray.length(); i++) {
@@ -173,10 +173,10 @@ public class DataRetrieveWorker {
                         JSONArray dataArray = jsonObj.getJSONArray("data");
                         JSONArray accessTimeArray = jsonObj.getJSONArray("DataAccessTime");
                         ArrayList<AccessTime> accessTimeList = new ArrayList<>();
-                        ArrayList<Double> dataList = new ArrayList<>();
+                        ArrayList<Integer> dataList = new ArrayList<>();
                         String message = jsonObj.getString("message");
                         for (int i = 0; i < dataArray.length(); i++) {
-                            double value = dataArray.getDouble(i);
+                            int value = dataArray.getInt(i);
                             dataList.add(value);
                         }
                         for (int i = 0; i < accessTimeArray.length(); i++) {
@@ -220,10 +220,10 @@ public class DataRetrieveWorker {
                         JSONArray dataArray = jsonObj.getJSONArray("data");
                         JSONArray accessTimeArray = jsonObj.getJSONArray("DataAccessTime");
                         ArrayList<AccessTime> accessTimeList = new ArrayList<>();
-                        ArrayList<Double> dataList = new ArrayList<>();
+                        ArrayList<Integer> dataList = new ArrayList<>();
                         String message = jsonObj.getString("message");
                         for (int i = 0; i < dataArray.length(); i++) {
-                            double value = dataArray.getDouble(i);
+                            int value = dataArray.getInt(i);
                             dataList.add(value);
                         }
                         for (int i = 0; i < accessTimeArray.length(); i++) {
