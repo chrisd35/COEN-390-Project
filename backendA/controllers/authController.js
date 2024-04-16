@@ -32,15 +32,7 @@ exports.signup = async (req, res) => {
             id: uuidv4(),
             username: email,
             password: hashedPass,
-            Data: [{
-                
-                CO2: [],
-                VOC: [],
-                SoundLevel: [],
-                CO2AccessTime: [],
-                VOCAccessTime: [],
-                SoundAccessTime: []
-            }],
+            
             SoundThreshold: 0 // or another default value
         });
 
@@ -473,10 +465,13 @@ exports.getSoundThreshold=async (req,res,next)=>{
 }
 exports.addData = async (req, res, next) => {
     try {
-        const { soundValues, vocValues, co2Values, soundTime,  vocTime,co2Time,clientDate } = req.body;
+        const { soundValues, vocValues, co2Values, soundTime,  vocTime,co2Time,Date } = req.body;
         console.log(req.body)
-        
-        const currentDate = moment(clientDate).format("YYYY-MM-DD");
+        console.log("The type is"+typeof Date);
+        const clientDate=Date;
+        const dateObj = clientDate;
+        const currentDate = dateObj.split('T')[0];
+        // const currentDate = moment(clientDate).format("YYYY-MM-DD");
         console.log(currentDate)
         const time = moment(clientDate).format("HH:mm:ss");
         console.log("Current Time:", time);
@@ -486,8 +481,9 @@ exports.addData = async (req, res, next) => {
         }
 
         // Find or create the entry for the current date
+        
         let dataEntry = user.Data.find(entry => moment(entry.date).format("YYYY-MM-DD") === currentDate);
-        if (!dataEntry) {
+        if (!dataEntry ) {
             dataEntry = {
                 date: currentDate,
                 SoundLevel: [],
@@ -514,7 +510,7 @@ exports.addData = async (req, res, next) => {
         dataEntry.CO2AccessTime.push(...co2Time.slice(0, co2MinLength));
 
         let currentInfo=await user.save(); // Save the updated document
-        console.log(currentInfo);
+        console.log("updatedDocument",currentInfo);
         return res.json({ message: "Data updated successfully" });
     } catch (error) {
         console.error("Error updating data:", error);
