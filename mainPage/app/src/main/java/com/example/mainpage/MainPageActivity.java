@@ -148,7 +148,12 @@ public class MainPageActivity<T> extends AppCompatActivity {
         Logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 authentication.logout();
+                cancelAllNotifications();
+
+
+                ;
             }
         });
         SoundDataCollect.setOnClickListener(new View.OnClickListener() {
@@ -433,11 +438,13 @@ public class MainPageActivity<T> extends AppCompatActivity {
                         VOCdata.add(intValue);
                         VOCdataTIme.add(accessTime);
                         long currentTime = System.currentTimeMillis();
+                        if(intValue>51 &&intValue<100 && (currentTime - lastNotificationTimeVOC > NOTIFICATION_DELAYVOC)){
+                            makeNotification("Air Quality Alert", "VOC is over 51 pbm", "Our sensors detected a risky air concentration  of VOC in your environment", DIALOG_VOC, 103);
+                            lastNotificationTimeVOC=currentTime;
+                        }
+                        else if(intValue>101 && (currentTime - lastNotificationTimeVOC > NOTIFICATION_DELAYVOC)) {
 
-
-                        if(intValue>101 && (currentTime - lastNotificationTimeVOC > NOTIFICATION_DELAYVOC)) {
-
-                            makeNotification("Air Quality Alert", "VOC is over 101 pbm", "Our sensors detected a high concentration of VOC in your environment", DIALOG_VOC, 103);
+                            makeNotification("Urgent Air Quality Alert", "VOC is over 101 pbm", "Our sensors detected a very high concentration of VOC in your environment", DIALOG_VOC, 103);
                             lastNotificationTimeVOC=currentTime;
                         }
                         Log.d(Tag,"VOC "+ String.valueOf(intValue));
@@ -733,7 +740,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
     private static final String DIALOG_VOC = "VOCDialog";
     private static final String DIALOG_AIR = "AirDialog";
 
-
+    public void cancelAllNotifications() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -809,7 +819,10 @@ public class MainPageActivity<T> extends AppCompatActivity {
         notificationManager.notify(ID, builder.build());
     }
 
-
+    public void cancelNotification(int ID) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(ID);
+    }
 
     public void setAverageC02(String averageCO2){
         this.averageCO2 = averageCO2;

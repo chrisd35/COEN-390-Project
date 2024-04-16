@@ -221,7 +221,7 @@ public class StatActivity extends AppCompatActivity {
                             retrieveWeeklyData(); // This will be executed every second
                         }); // This will be executed every second
                     }
-                }, 0, 1000);  // Call the retrieveWeeklyData() method here
+                }, 0, 400);  // Call the retrieveWeeklyData() method here
             }
             catch (Exception e) {
                 Log.e("StatActivity1", e.getMessage());
