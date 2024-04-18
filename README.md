@@ -9,9 +9,13 @@ Through this application, users will be able to get instantaneous readings of th
  ## Team Members:
  
 Anjanaa Poobalasingam       40210404
+
 Christian Dingayan         40176620
+
 Madurra Satchithanantham   40212543
+
 Ruso Kanapathipillai       40133397
+
 Varun Raval               40190519
 
 ## Languages/Techniques:
